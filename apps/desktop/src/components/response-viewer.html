@@ -1,0 +1,58 @@
+<!-- Componente: Visor de Respuesta HTTP con Búsqueda Mejorada (apps/desktop/src/components/response-viewer.html) -->
+<section class="etp-response" id="right-response-panel" aria-label="Visor de respuesta HTTP">
+  <header class="etp-response-header">
+    <div class="etp-metrics-group" id="resp-metrics">
+      <span class="etp-status-badge status-3xx" id="resp-status-badge" data-i18n="response.statusReady">LISTO</span>
+      <span class="etp-metric-chip" id="resp-time-chip">0 ms</span>
+      <span class="etp-metric-chip" id="resp-size-chip">0 B</span>
+      <span class="etp-metric-chip" id="resp-tests-chip" data-i18n="response.assertionsDash">Aserciones: —</span>
+    </div>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <button type="button" class="etp-btn-xs" id="btn-toggle-split-dir" data-i18n-title="response.btnSplitTooltip" title="Alternar vista lado a lado o arriba/abajo">
+        ◫ <span data-i18n="response.btnSplitView">Vista</span>
+      </button>
+      <button type="button" class="etp-btn-xs" id="btn-maximize-resp" data-i18n-title="response.btnMaxTooltip" title="Ampliar o restaurar el panel de respuesta">
+        ⛶ <span id="lbl-max-resp" data-i18n="response.btnMaximize">Ampliar</span>
+      </button>
+      <button type="button" class="etp-btn-xs" id="btn-copy-resp">
+        📋 <span data-i18n="response.btnCopy">Copiar</span>
+      </button>
+      <button type="button" class="etp-btn-xs" id="btn-download-resp">
+        💾 <span data-i18n="response.btnDownload">Descargar</span>
+      </button>
+      <button type="button" class="etp-btn-xs" id="btn-export-curl">cURL</button>
+    </div>
+  </header>
+
+  <nav class="etp-subtabs" id="resp-subtabs">
+    <button type="button" class="etp-subtab active" data-resp-tab="pretty" id="resp-tab-pretty" data-i18n="response.tabPretty">Pretty</button>
+    <button type="button" class="etp-subtab" data-resp-tab="raw" id="resp-tab-raw" data-i18n="response.tabRaw">Raw</button>
+    <button type="button" class="etp-subtab" data-resp-tab="headers" id="resp-tab-headers" data-i18n="response.tabHeaders">Headers</button>
+    <button type="button" class="etp-subtab" data-resp-tab="preview" id="resp-tab-preview" data-i18n="response.tabPreview">Preview (Sandbox)</button>
+    <button type="button" class="etp-subtab" data-resp-tab="cookies" id="resp-tab-cookies" data-i18n="response.tabCookies">Cookies</button>
+    <button type="button" class="etp-subtab" data-resp-tab="assertions" id="resp-tab-assertions" data-i18n="response.tabResults">Resultados Pruebas</button>
+  </nav>
+
+  <!-- Barra de Búsqueda de Respuesta Mejorada y Completa -->
+  <div class="etp-response-filter-bar">
+    <div class="etp-response-search-shell">
+      <span class="etp-search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        id="resp-search-input"
+        class="etp-response-search-input"
+        data-i18n-placeholder="response.searchPlaceholder"
+        placeholder="Buscar o filtrar contenido dentro de la respuesta..."
+        aria-label="Filtrar contenido de la respuesta"
+      />
+      <button type="button" class="etp-btn-xs" id="btn-resp-filter-mode" style="height:22px;padding:0 6px;font-size:11px;">
+        <span id="lbl-resp-filter-mode" data-i18n="response.filterModeLines">Filtrar líneas</span>
+      </button>
+      <span class="etp-search-badge" id="resp-match-count">0 coincidencias</span>
+      <button type="button" class="etp-search-clear-btn" id="btn-clear-resp-search" title="Limpiar filtro">✕</button>
+    </div>
+    <span id="resp-lines-indicator" style="font-size:11.5px;color:var(--text-muted);font-family:var(--font-mono);white-space:nowrap;">0 líneas</span>
+  </div>
+
+  <div class="etp-response-body" id="resp-body-container"></div>
+</section>

@@ -1,0 +1,36 @@
+[package]
+name = "eltransportador-desktop"
+version = "1.0.0"
+description = "ElTransportador — IDE multiplataforma, ligero y seguro para pruebas de APIs HTTP"
+authors = ["Equipo de Ingeniería ElTransportador"]
+license = "MIT"
+repository = "https://github.com/eltransportador/eltransportador"
+edition = "2021"
+default-run = "eltransportador-desktop"
+
+[lib]
+name = "eltransportador_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "eltransportador-desktop"
+path = "src/main.rs"
+
+[[bin]]
+name = "eltransportador-cli"
+path = "src/bin/eltransportador-cli.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = [] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "time", "sync", "fs", "io-util"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart", "stream", "cookies", "rustls-tls", "gzip", "brotli"] }
+url = "2.5"
+uuid = { version = "1.10", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+regex = "1.10"

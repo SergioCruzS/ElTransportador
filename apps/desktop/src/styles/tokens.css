@@ -1,0 +1,106 @@
+/**
+ * Tokens de Diseño Oficiales — ElTransportador v1.0.0 (`com.eltransportador.desktop`)
+ * Archivo: apps/desktop/src/styles/tokens.css
+ * - Tipografía moderna y amigable para lectura prolongada.
+ * - Tema Claro por defecto y Tema Oscuro de baja fatiga visual.
+ */
+
+:root,
+[data-theme="light"] {
+  --bg-app: #f3f5f8;
+  --bg-panel: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-card: #f8fafc;
+  --bg-input: #ffffff;
+  --bg-hover: #eef2f6;
+  --bg-active: #e0f2fe;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-focus: #0284c7;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent-primary: #0284c7;
+  --accent-primary-hover: #0369a1;
+  --accent-secondary: #059669;
+  --status-success: #059669;
+  --status-warning: #d97706;
+  --status-danger: #dc2626;
+  --method-get: #0284c7;
+  --method-post: #059669;
+  --method-put: #d97706;
+  --method-patch: #7c3aed;
+  --method-delete: #dc2626;
+  --method-head: #475569;
+  --method-options: #be185d;
+  --font-sans: 'Plus Jakarta Sans', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+[data-theme="dark"] {
+  --bg-app: #1c1e22;
+  --bg-panel: #24272d;
+  --bg-elevated: #2c3038;
+  --bg-card: #282c33;
+  --bg-input: #1e2126;
+  --bg-hover: #333842;
+  --bg-active: #2b3a4a;
+  --border-subtle: #2f343d;
+  --border-strong: #3d434f;
+  --border-focus: #5b94c2;
+  --text-primary: #e2e6ed;
+  --text-secondary: #aeb6c2;
+  --text-muted: #828a97;
+  --accent-primary: #4a82b0;
+  --accent-primary-hover: #5b94c2;
+  --accent-secondary: #489174;
+  --status-success: #56a887;
+  --status-warning: #c99342;
+  --status-danger: #d16464;
+  --method-get: #67a3d4;
+  --method-post: #5eb390;
+  --method-put: #d19f4e;
+  --method-patch: #a389d4;
+  --method-delete: #d47373;
+  --method-head: #949da8;
+  --method-options: #c980a8;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 5px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

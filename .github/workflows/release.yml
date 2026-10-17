@@ -1,0 +1,76 @@
+name: Release — Compilación Multiplataforma y Distribución Firmada (ElTransportador)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-multiplatform-bundles:
+    name: Compilar Instaladores (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu-22.04
+            args: ""
+            artifact_types: "deb, AppImage"
+          - platform: windows-latest
+            args: ""
+            artifact_types: "msi, nsis (.exe)"
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
+            artifact_types: "dmg, app"
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias de sistema en Linux
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libsecret-1-dev
+
+      - name: Configurar Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Ejecutar suite de pruebas previas al empaquetado
+        run: |
+          node scripts/lint-check.mjs
+          node scripts/build-all.mjs
+          node tests/unit/run-unit-tests.mjs
+          node tests/integration/run-integration-tests.mjs
+          node tests/security/run-security-tests.mjs
+          node scripts/security-audit.mjs
+
+      - name: Compilar y Firmar Artefactos con Tauri Action
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: apps/desktop
+          tagName: v__VERSION__
+          releaseName: "ElTransportador v__VERSION__"
+          releaseBody: "Publicación multiplataforma verificada de ElTransportador (com.eltransportador.desktop)."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob: http: https: ipc:; connect-src * ipc: http://ipc.localhost https://ipc.localhost http: https: ws: wss: data: blob:; img-src 'self' data: https: http:; frame-src 'self' data: blob:; object-src 'none';" />
+  <title>ElTransportador — IDE Multiplataforma para Pruebas de API (v1.0.0)</title>
+  <link rel="stylesheet" href="./styles/tokens.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="etp-shell" id="app-shell">
+    <!-- @component:topbar -->
+    <main class="etp-workspace" id="workspace-root">
+      <!-- @component:sidebar -->
+      <div class="etp-main-split" id="main-split-container">
+        <!-- @component:request-editor -->
+        <div class="etp-resizer" id="split-resizer" title="Arrastra para ajustar el espacio entre solicitud y respuesta"></div>
+        <!-- @component:response-viewer -->
+      </div>
+    </main>
+    <!-- @component:flows-studio -->
+  </div>
+  <!-- @component:modals -->
+  <script type="module" src="./controllers/app-controller.js"></script>
+</body>
+</html>

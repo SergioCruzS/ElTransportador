@@ -1,0 +1,30 @@
+<!-- Componente: Panel Lateral Izquierdo sin control deslizante (apps/desktop/src/components/sidebar.html) -->
+<aside class="etp-sidebar" id="main-sidebar" aria-label="Panel de navegación lateral">
+  <div class="etp-sidebar-header">
+    <span id="lbl-sidebar-mode" data-i18n="sidebar.title">Navegador de Proyecto</span>
+    <div style="display:flex;gap:4px;">
+      <button type="button" class="etp-btn-xs" id="btn-pin-sidebar" data-i18n-title="sidebar.pinTooltip" title="Fijar panel o dejar flotante (auto-ocultar al perder foco)">
+        📌 <span id="lbl-pin-state" data-i18n="sidebar.pinFixed">Fijo</span>
+      </button>
+      <button type="button" class="etp-btn-xs" id="btn-hide-sidebar-inline" data-i18n-title="sidebar.hideTooltip" title="Ocultar panel lateral">
+        <span data-i18n="sidebar.hide">◀ Ocultar</span>
+      </button>
+    </div>
+  </div>
+  <nav class="etp-sidebar-nav">
+    <button type="button" class="etp-sidebar-tab active" data-side-tab="collections" id="side-tab-collections" data-i18n="sidebar.tabCollections">Colecciones</button>
+    <button type="button" class="etp-sidebar-tab" data-side-tab="environments" id="side-tab-environments" data-i18n="sidebar.tabEnvironments">Entornos</button>
+    <button type="button" class="etp-sidebar-tab" data-side-tab="history" id="side-tab-history" data-i18n="sidebar.tabHistory">Historial</button>
+  </nav>
+  <!-- Barra de acciones exclusiva del apartado de Colecciones -->
+  <div class="etp-sidebar-toolbar" id="sidebar-toolbar">
+    <button type="button" class="etp-btn-xs" id="btn-new-collection" data-i18n="sidebar.newCollection">+ Colección</button>
+    <button type="button" class="etp-btn-xs" id="btn-new-folder" data-i18n="sidebar.newFolder">+ Carpeta</button>
+    <button type="button" class="etp-btn-xs" id="btn-new-request" data-i18n="sidebar.newRequest">+ Solicitud</button>
+    <button type="button" class="etp-btn-xs" id="btn-duplicate-req" data-i18n="sidebar.duplicateReq">⧉ Duplicar</button>
+  </div>
+  <div class="etp-sidebar-body" id="sidebar-body"></div>
+</aside>
+
+<!-- Borde derecho arrastrable con el mouse para ajustar el ancho del panel lateral -->
+<div class="etp-sidebar-resizer" id="sidebar-resizer" title="Arrastra con el mouse para expandir o contraer el panel lateral"></div>

@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Inventario Microservicio API",
+    "version": "2.1.0",
+    "description": "Especificación OpenAPI de prueba para validar el importador de ElTransportador"
+  },
+  "servers": [
+    {
+      "url": "https://api.inventario.ejemplo.mx/v2"
+    }
+  ],
+  "paths": {
+    "/warehouses": {
+      "get": {
+        "summary": "Listar almacenes",
+        "operationId": "listWarehouses",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "centro"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Registrar almacén",
+        "operationId": "createWarehouse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Almacén Lerma",
+                "capacity": 5000
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    }
+  },
+  "x-malicious-script": "console.log('should-be-discarded-and-never-executed')"
+}

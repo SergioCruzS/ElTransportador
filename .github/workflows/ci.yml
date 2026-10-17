@@ -1,0 +1,91 @@
+name: CI — Verificación Continua y Seguridad (ElTransportador)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  ELTRANSPORTADOR_CI: "true"
+
+jobs:
+  lint-and-test-core:
+    name: Análisis Estático, Pruebas Unitarias, Integración y Seguridad
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configurar Python 3.11 (SQLite & E2E)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ejecutar análisis estático TypeScript/JSX/ESM
+        run: node scripts/lint-check.mjs
+
+      - name: Compilar bundle de interfaz
+        run: node scripts/build-all.mjs
+
+      - name: Ejecutar Pruebas Unitarias
+        run: node tests/unit/run-unit-tests.mjs
+
+      - name: Ejecutar Pruebas de Integración (Servidor HTTP Local + SQLite)
+        run: node tests/integration/run-integration-tests.mjs
+
+      - name: Ejecutar Pruebas de Seguridad (SSRF, Redacción, Path Traversal, CSP)
+        run: node tests/security/run-security-tests.mjs
+
+      - name: Ejecutar Auditoría de Secretos y Generar SBOM
+        run: node scripts/security-audit.mjs
+
+  rust-tauri-check:
+    name: Verificación Nativa Rust & Tauri 2 (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias del sistema en Linux (WebKitGTK & Secret Service)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libsecret-1-dev
+
+      - name: Instalar Toolchain Estable de Rust (rustfmt + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache de dependencias Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "apps/desktop/src-tauri -> target"
+
+      - name: Verificar formato de código Rust
+        run: cargo fmt --all -- --check
+
+      - name: Ejecutar análisis estático Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Ejecutar pruebas nativas de Rust
+        run: cargo test --workspace
+
+      - name: Auditar vulnerabilidades en dependencias Rust (cargo-audit)
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

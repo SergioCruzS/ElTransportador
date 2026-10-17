@@ -1,0 +1,77 @@
+<!-- Componente: Modales Estilizados y Contenedor de Toasts (apps/desktop/src/components/modals.html) -->
+
+<!-- Modal Principal 1: Importación / Exportación y cURL (z-index: 1000) -->
+<div class="etp-modal-backdrop" id="modal-import">
+  <div class="etp-modal" role="dialog" aria-labelledby="modal-import-title">
+    <div class="etp-modal-header">
+      <span id="modal-import-title" data-i18n="modals.importExportTitle">Importar / Exportar Colecciones (.etp.json / OpenAPI 3.0) y cURL</span>
+      <button type="button" class="etp-btn-xs" id="btn-close-import-modal" data-i18n="modals.btnClose">Cerrar ✕</button>
+    </div>
+    <div class="etp-modal-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="etp-btn" id="btn-export-etp" data-i18n="modals.btnExportEtp">📦 Ver JSON de Colección (.etp.json)</button>
+          <button type="button" class="etp-btn etp-btn-primary" id="btn-execute-import" data-i18n="modals.btnValidateImport">✓ Validar e Importar JSON</button>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="etp-btn" id="btn-copy-modal-code" data-i18n="modals.btnCopyContent">📋 Copiar Contenido</button>
+          <button type="button" class="etp-btn etp-btn-success" id="btn-save-modal-file" data-i18n="modals.btnSaveFileAs">💾 Guardar Archivo Como...</button>
+        </div>
+      </div>
+      <textarea id="import-textarea" class="etp-modal-code-area" spellcheck="false" data-i18n-placeholder="modals.importPlaceholder" placeholder="Pega aquí una colección .etp.json o una especificación OpenAPI 3.0 para importarla..."></textarea>
+      <div id="import-report-box" style="font-size:12.5px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Principal 2: Configuración Global y Administración de Contraseña de Secretos (z-index: 1000) -->
+<div class="etp-modal-backdrop" id="modal-settings">
+  <div class="etp-modal etp-modal-lg" role="dialog" aria-labelledby="modal-settings-title">
+    <div class="etp-modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>⚙</span>
+        <span id="modal-settings-title" data-i18n="modals.settingsTitle">Configuración Global y Administración de Seguridad</span>
+      </div>
+      <button type="button" class="etp-btn-xs" id="btn-close-settings-modal" data-i18n="modals.btnClose">Cerrar ✕</button>
+    </div>
+    <div class="etp-modal-body" id="modal-settings-body"></div>
+  </div>
+</div>
+
+<!-- Modal Superpuesto de Entrada / Autorización por Contraseña (z-index: 3500 — Siempre encima de modales principales) -->
+<div class="etp-modal-backdrop etp-modal-overlay-top" id="modal-input-dialog">
+  <div class="etp-modal etp-modal-sm" role="dialog" aria-labelledby="input-dialog-title">
+    <div class="etp-modal-header">
+      <span id="input-dialog-title">Editar nombre</span>
+      <button type="button" class="etp-btn-xs" id="btn-close-input-dialog">✕</button>
+    </div>
+    <div class="etp-modal-body">
+      <label id="input-dialog-label" for="input-dialog-field" style="font-size:12.5px;color:var(--text-secondary);">Ingresa el valor:</label>
+      <input type="text" id="input-dialog-field" class="etp-input" style="width:100%;height:36px;font-size:13px;" />
+    </div>
+    <div class="etp-modal-footer">
+      <button type="button" class="etp-btn" id="btn-cancel-input-dialog" data-i18n="modals.btnCancel">Cancelar</button>
+      <button type="button" class="etp-btn etp-btn-primary" id="btn-confirm-input-dialog" data-i18n="modals.btnConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Superpuesto de Confirmación y Advertencias Críticas (z-index: 3500 — Siempre encima de modales principales) -->
+<div class="etp-modal-backdrop etp-modal-overlay-top" id="modal-confirm-move">
+  <div class="etp-modal etp-modal-sm" role="dialog" aria-labelledby="confirm-move-title">
+    <div class="etp-modal-header">
+      <span id="confirm-move-title" data-i18n="modals.moveTitle">Confirmación de seguridad</span>
+      <button type="button" class="etp-btn-xs" id="btn-close-confirm-move">✕</button>
+    </div>
+    <div class="etp-modal-body">
+      <p id="confirm-move-message" style="font-size:13px;line-height:1.55;color:var(--text-primary);"></p>
+    </div>
+    <div class="etp-modal-footer">
+      <button type="button" class="etp-btn" id="btn-cancel-confirm-move" data-i18n="modals.btnCancel">Cancelar</button>
+      <button type="button" class="etp-btn etp-btn-primary" id="btn-accept-confirm-move" data-i18n="modals.btnAcceptMove">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor de Notificaciones y Avisos Flotantes (z-index: 5000 — Siempre por encima de todos los modales) -->
+<div class="etp-toast-container" id="toast-container" aria-live="polite"></div>

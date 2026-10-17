@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#111C33"/>
+    </linearGradient>
+    <linearGradient id="reqGrad" x1="40" y1="88" x2="216" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="resGrad" x1="216" y1="168" x2="40" y2="168" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <!-- Marco Octogonal de Precisión -->
+  <polygon points="74,12 182,12 244,74 244,182 182,244 74,244 12,182 12,74" fill="url(#bgGrad)" stroke="#1E293B" stroke-width="8"/>
+  <polygon points="80,24 176,24 232,80 232,176 176,232 80,232 24,176 24,80" fill="none" stroke="#0EA5E9" stroke-opacity="0.28" stroke-width="2"/>
+  <!-- Carril Superior: Flujo de Solicitud HTTP (Request ->) -->
+  <path d="M52 96 H168 L144 72 L162 54 L212 104 L162 122 L52 122 Z" fill="url(#reqGrad)"/>
+  <!-- Carril Inferior: Flujo de Respuesta Verificada (<- Response) -->
+  <path d="M204 160 H88 L112 184 L94 202 L44 152 L94 134 L204 134 Z" fill="url(#resGrad)"/>
+  <!-- Nodo Central de Sincronización / Verificación -->
+  <rect x="118" y="118" width="20" height="20" transform="rotate(45 128 128)" fill="#F8FAFC"/>
+</svg>

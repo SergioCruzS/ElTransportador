@@ -1,0 +1,18 @@
+<!-- Componente: Pantalla Completa de Estudio y Ejecución de Flujos (apps/desktop/src/components/flows-studio.html) -->
+<section class="etp-flows-studio" id="flows-studio-view" aria-label="Estudio de Flujos de API">
+  <!-- Menú Lateral de Flujos -->
+  <aside class="etp-flows-sidebar">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <strong style="font-size:13.5px;" id="lbl-flows-sidebar-title">Mis Flujos (0)</strong>
+      <button type="button" class="etp-btn etp-btn-primary" id="btn-create-custom-flow" style="height:28px;padding:0 10px;font-size:12px;" data-i18n="flows.btnNewFlow">+ Nuevo Flujo</button>
+    </div>
+    <div class="etp-response-search-shell" style="flex:0 0 32px;">
+      <span class="etp-search-icon">🔍</span>
+      <input type="search" id="flows-search-input" class="etp-response-search-input" data-i18n-placeholder="flows.searchFlowsPlaceholder" placeholder="Filtrar flujos..." />
+    </div>
+    <div id="flows-sidebar-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+  </aside>
+
+  <!-- Área Principal del Estudio de Flujos -->
+  <div class="etp-flows-main" id="flows-studio-main-content"></div>
+</section>

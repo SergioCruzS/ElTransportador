@@ -1,0 +1,30 @@
+{
+  "name": "eltransportador",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ElTransportador — IDE multiplataforma, ligero y seguro para pruebas de APIs HTTP",
+  "author": "Sergio Cruz",
+  "license": "MIT",
+  "workspaces": [
+    "apps/desktop",
+    "packages/contracts",
+    "packages/ui",
+    "packages/test-fixtures"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "build": "node scripts/build-all.mjs",
+    "test": "node scripts/run-all-tests.mjs",
+    "test:unit": "node tests/unit/run-unit-tests.mjs",
+    "test:integration": "node tests/integration/run-integration-tests.mjs",
+    "test:security": "node tests/security/run-security-tests.mjs",
+    "test:e2e": "python3 tests/e2e/run_e2e_ui_tests.py",
+    "cli": "node scripts/eltransportador-cli.mjs",
+    "lint": "node scripts/lint-check.mjs",
+    "audit:security": "node scripts/security-audit.mjs",
+    "benchmark": "node scripts/measure-metrics.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

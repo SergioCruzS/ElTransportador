@@ -1,0 +1,298 @@
+{
+  "$schema": "https://eltransportador.dev/schemas/collection-v1.json",
+  "schemaVersion": 1,
+  "kind": "eltransportador.collection",
+  "metadata": {
+    "id": "col_eltransportador_demo_01",
+    "name": "Pasarela de Pagos & Logística API",
+    "description": "Colección oficial de referencia de ElTransportador para verificación funcional, consultas GET/POST y automatización.",
+    "createdAt": "2026-10-14T10:00:00Z",
+    "updatedAt": "2026-10-14T11:30:00Z",
+    "appVersion": "1.0.0"
+  },
+  "defaults": {
+    "timeoutMs": 10000,
+    "followRedirects": true,
+    "maxRedirects": 5,
+    "verifyTls": true,
+    "headers": [
+      {
+        "id": "hdr_def_1",
+        "key": "Accept",
+        "value": "application/json",
+        "enabled": true
+      },
+      {
+        "id": "hdr_def_2",
+        "key": "X-Client-App",
+        "value": "ElTransportador/1.0.0",
+        "enabled": true
+      }
+    ]
+  },
+  "variables": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:18980",
+      "enabled": true,
+      "isSecret": false
+    },
+    {
+      "key": "api_version",
+      "value": "v1",
+      "enabled": true,
+      "isSecret": false
+    },
+    {
+      "key": "gateway_token",
+      "value": "",
+      "enabled": true,
+      "isSecret": true,
+      "secretRef": "gateway_token"
+    }
+  ],
+  "folders": [
+    {
+      "id": "fld_auth",
+      "name": "1. Diagnóstico y Catálogos (GET)",
+      "parentId": null,
+      "description": "Consultas GET de estado del sistema, catálogo de órdenes y usuarios"
+    },
+    {
+      "id": "fld_orders",
+      "name": "2. Operaciones de Órdenes (POST / GET Detalle)",
+      "parentId": null,
+      "description": "Creación de órdenes de transporte e inspección por identificador"
+    },
+    {
+      "id": "fld_public",
+      "name": "3. APIs Públicas Reales (JSONPlaceholder)",
+      "parentId": null,
+      "description": "Consultas HTTP en vivo hacia servidores públicos de prueba"
+    }
+  ],
+  "requests": [
+    {
+      "id": "req_health_check",
+      "name": "Estado y Métricas del Gateway (GET /health)",
+      "folderId": "fld_auth",
+      "method": "GET",
+      "url": "${base_url}/api/${api_version}/health",
+      "params": [
+        {
+          "id": "prm_1",
+          "key": "verbose",
+          "value": "true",
+          "description": "Incluir métricas detalladas de nodos, base de datos y latencia",
+          "enabled": true
+        }
+      ],
+      "headers": [
+        {
+          "id": "hdr_1",
+          "key": "X-Trace-Id",
+          "value": "etp-trace-001",
+          "enabled": true
+        }
+      ],
+      "auth": {
+        "type": "none"
+      },
+      "body": {
+        "mode": "none"
+      },
+      "settings": {
+        "timeoutMs": 5000,
+        "followRedirects": true,
+        "maxRedirects": 5,
+        "verifyTls": true,
+        "maxResponseBytes": 5242880
+      },
+      "assertions": [
+        {
+          "id": "ast_1",
+          "enabled": true,
+          "target": "status",
+          "operator": "equals",
+          "expected": "200"
+        },
+        {
+          "id": "ast_2",
+          "enabled": true,
+          "target": "json_path",
+          "property": "status",
+          "operator": "equals",
+          "expected": "operational"
+        },
+        {
+          "id": "ast_3",
+          "enabled": true,
+          "target": "duration_ms",
+          "operator": "less_than",
+          "expected": "2000"
+        }
+      ],
+      "extractions": [
+        {
+          "id": "ext_1",
+          "enabled": true,
+          "variableName": "session_nonce",
+          "source": "json_path",
+          "path": "meta.nonce"
+        }
+      ]
+    },
+    {
+      "id": "req_create_order",
+      "name": "Crear Orden de Transporte (POST /orders)",
+      "folderId": "fld_orders",
+      "method": "POST",
+      "url": "${base_url}/api/${api_version}/orders",
+      "params": [],
+      "headers": [
+        {
+          "id": "hdr_post_1",
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "id": "hdr_post_2",
+          "key": "X-Session-Nonce",
+          "value": "${session_nonce}",
+          "enabled": true
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearerToken": "${secret:gateway_token}"
+      },
+      "body": {
+        "mode": "json",
+        "raw": "{\n  \"customer\": \"Logística Central S.A.\",\n  \"origin\": \"Toluca, MEX\",\n  \"destination\": \"Monterrey, NLE\",\n  \"items\": [\n    { \"sku\": \"ETP-MOD-01\", \"qty\": 4, \"weightKg\": 12.5 }\n  ],\n  \"priority\": \"express\"\n}"
+      },
+      "settings": {
+        "timeoutMs": 8000,
+        "followRedirects": true,
+        "maxRedirects": 3,
+        "verifyTls": true,
+        "maxResponseBytes": 5242880
+      },
+      "assertions": [
+        {
+          "id": "ast_ord_1",
+          "enabled": true,
+          "target": "status",
+          "operator": "equals",
+          "expected": "201"
+        },
+        {
+          "id": "ast_ord_2",
+          "enabled": true,
+          "target": "json_path",
+          "property": "order.id",
+          "operator": "exists",
+          "expected": "true"
+        },
+        {
+          "id": "ast_ord_3",
+          "enabled": true,
+          "target": "json_path",
+          "property": "order.priority",
+          "operator": "equals",
+          "expected": "express"
+        }
+      ],
+      "extractions": [
+        {
+          "id": "ext_ord_1",
+          "enabled": true,
+          "variableName": "created_order_id",
+          "source": "json_path",
+          "path": "order.id"
+        }
+      ]
+    },
+    {
+      "id": "req_inspect_order",
+      "name": "Consultar Orden Creada (GET /orders/:id)",
+      "folderId": "fld_orders",
+      "method": "GET",
+      "url": "${base_url}/api/${api_version}/orders/${created_order_id}",
+      "params": [],
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearerToken": "${secret:gateway_token}"
+      },
+      "body": {
+        "mode": "none"
+      },
+      "settings": {
+        "timeoutMs": 5000,
+        "followRedirects": true,
+        "maxRedirects": 3,
+        "verifyTls": true,
+        "maxResponseBytes": 5242880
+      },
+      "assertions": [
+        {
+          "id": "ast_get_1",
+          "enabled": true,
+          "target": "status",
+          "operator": "equals",
+          "expected": "200"
+        },
+        {
+          "id": "ast_get_2",
+          "enabled": true,
+          "target": "json_path",
+          "property": "order.customer",
+          "operator": "contains",
+          "expected": "Logística Central"
+        }
+      ],
+      "extractions": []
+    },
+    {
+      "id": "req_list_all_orders",
+      "name": "Listar Catálogo de Órdenes (GET /orders)",
+      "folderId": "fld_auth",
+      "method": "GET",
+      "url": "${base_url}/api/${api_version}/orders",
+      "params": [
+        {
+          "id": "prm_ord_filter",
+          "key": "limit",
+          "value": "10",
+          "description": "Número máximo de órdenes a devolver",
+          "enabled": true
+        }
+      ],
+      "headers": [],
+      "auth": {
+        "type": "none"
+      },
+      "body": {
+        "mode": "none"
+      },
+      "settings": {
+        "timeoutMs": 5000,
+        "followRedirects": true,
+        "maxRedirects": 3,
+        "verifyTls": true,
+        "maxResponseBytes": 5242880
+      },
+      "assertions": [
+        {
+          "id": "ast_list_1",
+          "enabled": true,
+          "target": "status",
+          "operator": "equals",
+          "expected": "200"
+        }
+      ],
+      "extractions": []
+    }
+  ]
+}

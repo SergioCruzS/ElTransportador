@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ElTransportador",
+  "version": "1.0.0",
+  "identifier": "com.eltransportador.desktop",
+  "build": {
+    "beforeDevCommand": "node ../../scripts/build-all.mjs",
+    "frontendDist": "../dist",
+    "beforeBuildCommand": "node ../../scripts/build-all.mjs"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "ElTransportador — IDE de Pruebas de API",
+        "label": "main",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost http: https:; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'none'",
+      "freezePrototype": true,
+      "dangerousDisableAssetCspModification": false
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "msi",
+      "nsis",
+      "deb",
+      "appimage",
+      "dmg",
+      "app"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "ElTransportador Project",
+    "category": "DeveloperTool",
+    "shortDescription": "IDE multiplataforma, ligero y seguro para pruebas de APIs HTTP",
+    "longDescription": "ElTransportador es una aplicación de escritorio independiente para desarrollar, ejecutar, organizar y automatizar pruebas de APIs HTTP."
+  }
+}

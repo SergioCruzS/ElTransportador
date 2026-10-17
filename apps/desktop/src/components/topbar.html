@@ -1,0 +1,62 @@
+<!-- Componente: Barra Superior (apps/desktop/src/components/topbar.html) -->
+<header class="etp-topbar">
+  <div class="etp-brand">
+    <button type="button" class="etp-btn" id="btn-toggle-sidebar" data-i18n-title="topbar.panelTooltip" title="Mostrar u ocultar panel lateral">
+      ◧ <span id="lbl-sidebar-toggle" data-i18n="topbar.panel">Panel</span>
+    </button>
+    <svg width="24" height="24" viewBox="0 0 256 256" fill="none" aria-label="ElTransportador">
+      <polygon points="74,12 182,12 244,74 244,182 182,244 74,244 12,182 12,74" fill="#1E293B" stroke="#0284C7" stroke-width="12"/>
+      <path d="M52 96 H168 L144 72 L162 54 L212 104 L162 122 L52 122 Z" fill="#06B6D4"/>
+      <path d="M204 160 H88 L112 184 L94 202 L44 152 L94 134 L204 134 Z" fill="#10B981"/>
+      <rect x="118" y="118" width="20" height="20" transform="rotate(45 128 128)" fill="#F8FAFC"/>
+    </svg>
+    <span>ElTransportador</span>
+    <span class="etp-version-pill" id="lbl-app-version">v1.0.0</span>
+  </div>
+
+  <!-- Barra de Búsqueda Global Mejorada -->
+  <div class="etp-topbar-center">
+    <div class="etp-search-shell">
+      <span class="etp-search-icon" aria-hidden="true">🔍</span>
+      <select id="global-search-scope" class="etp-search-scope-select" aria-label="Alcance de búsqueda">
+        <option value="all" data-i18n="topbar.searchScopeAll">Todo</option>
+        <option value="name" data-i18n="topbar.searchScopeName">Nombre</option>
+        <option value="url" data-i18n="topbar.searchScopeUrl">URL</option>
+        <option value="method" data-i18n="topbar.searchScopeMethod">Método</option>
+      </select>
+      <input
+        type="search"
+        id="global-search"
+        class="etp-global-search"
+        data-i18n-placeholder="topbar.searchPlaceholder"
+        placeholder="Buscar colecciones, solicitudes, URLs o historial (Ctrl+K)..."
+        aria-label="Búsqueda global"
+      />
+      <span class="etp-search-badge" id="global-search-count">Ctrl+K</span>
+      <button type="button" class="etp-search-clear-btn" id="btn-clear-global-search" data-i18n-title="topbar.searchClear" title="Limpiar búsqueda">✕</button>
+    </div>
+  </div>
+
+  <div class="etp-topbar-actions">
+    <label for="env-select" id="lbl-env" data-i18n="topbar.envLabel" style="font-size:12px;color:var(--text-secondary);">Entorno:</label>
+    <select id="env-select" class="etp-select" aria-label="Selector de entorno activo"></select>
+    <button type="button" class="etp-btn" id="btn-open-vault" data-i18n-title="topbar.btnVaultTooltip" title="Gestionar entornos y bóveda de secretos">
+      🔑 <span id="lbl-btn-vault" data-i18n="topbar.btnVault">Entornos y Secretos</span>
+    </button>
+    <button type="button" class="etp-btn etp-btn-success" id="btn-run-flow" data-i18n-title="topbar.btnFlowsTooltip" title="Abrir pantalla de flujos y automatización de endpoints">
+      ▶ <span id="lbl-btn-flow" data-i18n="topbar.btnFlows">Estudio de Flujos</span>
+    </button>
+    <button type="button" class="etp-btn" id="btn-open-import">
+      ⇄ <span id="lbl-btn-import" data-i18n="topbar.btnImportExport">Importar / Exportar</span>
+    </button>
+    <button type="button" class="etp-btn" id="btn-toggle-theme" data-i18n-title="topbar.themeTooltip" title="Alternar entre tema Claro y Oscuro">
+      ☀/☾ <span id="lbl-theme">Claro</span>
+    </button>
+    <button type="button" class="etp-btn" id="btn-toggle-lang" data-i18n-title="topbar.langTooltip" title="Cambiar idioma ES/EN">
+      🌐 <span id="lbl-lang">ES</span>
+    </button>
+    <button type="button" class="etp-btn" id="btn-open-settings" data-i18n-title="topbar.settingsTooltip" title="Configuración">
+      ⚙
+    </button>
+  </div>
+</header>

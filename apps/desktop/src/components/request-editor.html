@@ -1,0 +1,63 @@
+<!-- Componente: Constructor Central de Solicitudes HTTP (apps/desktop/src/components/request-editor.html) -->
+<section class="etp-center" id="center-request-panel" aria-label="Editor de solicitud HTTP">
+  <div class="etp-request-tabs" id="open-tabs-bar"></div>
+
+  <div class="etp-req-meta-bar">
+    <span style="font-size:11.5px;color:var(--text-muted);font-weight:600;" data-i18n="request.nameLabel">Nombre:</span>
+    <input
+      type="text"
+      id="req-name-input"
+      class="etp-req-name-input"
+      data-i18n-placeholder="request.namePlaceholder"
+      placeholder="Nombre de la solicitud..."
+      aria-label="Editar nombre de la solicitud"
+    />
+    <span style="font-size:11.5px;color:var(--text-muted);font-weight:600;" data-i18n="request.locationLabel">Ubicación:</span>
+    <select id="req-folder-select" class="etp-select" style="height:28px;font-size:11.5px;padding:0 8px;max-width:260px;" aria-label="Colección y carpeta de la solicitud"></select>
+  </div>
+
+  <div class="etp-url-bar">
+    <select id="req-method" class="etp-select etp-method-select" aria-label="Método HTTP">
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+      <option value="PUT">PUT</option>
+      <option value="PATCH">PATCH</option>
+      <option value="DELETE">DELETE</option>
+      <option value="HEAD">HEAD</option>
+      <option value="OPTIONS">OPTIONS</option>
+    </select>
+    <input
+      type="text"
+      id="req-url"
+      class="etp-input etp-url-input"
+      data-i18n-placeholder="request.urlPlaceholder"
+      placeholder="https://api.ejemplo.com/v1/recurso o ${base_url}/endpoint"
+      aria-label="URL de la solicitud"
+    />
+    <button type="button" class="etp-btn etp-btn-primary" id="btn-send-req">
+      ⚡ <span id="lbl-send" data-i18n="request.btnSend">Enviar</span>
+    </button>
+    <button type="button" class="etp-btn etp-btn-danger" id="btn-cancel-req" style="display:none;">
+      ✕ <span data-i18n="request.btnCancel">Cancelar</span>
+    </button>
+    <button type="button" class="etp-btn" id="btn-save-req" data-i18n-title="request.btnSaveTooltip" title="Guardar cambios en la colección (Ctrl+S)">
+      💾 <span id="lbl-save" data-i18n="request.btnSave">Guardar</span>
+    </button>
+  </div>
+
+  <div class="etp-var-preview-bar" id="var-preview-bar">
+    <span id="resolved-url-preview" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">URL resuelta: —</span>
+    <span id="unresolved-warning" style="color:var(--status-warning);flex-shrink:0;"></span>
+  </div>
+
+  <nav class="etp-subtabs" id="req-subtabs">
+    <button type="button" class="etp-subtab active" data-req-tab="params" id="tab-btn-params" data-i18n="request.tabParams">Params</button>
+    <button type="button" class="etp-subtab" data-req-tab="headers" id="tab-btn-headers" data-i18n="request.tabHeaders">Headers</button>
+    <button type="button" class="etp-subtab" data-req-tab="auth" id="tab-btn-auth" data-i18n="request.tabAuth">Authorization</button>
+    <button type="button" class="etp-subtab" data-req-tab="body" id="tab-btn-body" data-i18n="request.tabBody">Body</button>
+    <button type="button" class="etp-subtab" data-req-tab="assertions" id="tab-btn-assertions" data-i18n="request.tabAssertions">Pruebas y Aserciones</button>
+    <button type="button" class="etp-subtab" data-req-tab="settings" id="tab-btn-settings" data-i18n="request.tabSettings">Settings</button>
+  </nav>
+
+  <div class="etp-editor-pane" id="req-editor-pane"></div>
+</section>

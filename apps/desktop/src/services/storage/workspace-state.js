@@ -1,5 +1,5 @@
 /**
- * Estado Inicial del Espacio de Trabajo y Persistencia en LocalStorage — ElTransportador v1.0.1
+ * Estado Inicial del Espacio de Trabajo y Persistencia en LocalStorage — ElTransportador v1.2.0
  * Archivo: apps/desktop/src/services/storage/workspace-state.js
  */
 import { translate } from "../../lang/i18n.js";
@@ -21,6 +21,8 @@ import {
   decryptRequestSensitiveFields
 } from "./vault-crypto.js";
 import { generateUniqueEntityId, ensureUniqueWorkspaceIds } from "./collection-sanitizer.js";
+import { migrateFlowToV2 } from "../flows/flow-schema.js";
+import { maskSecretsInString } from "../http/variable-interpolation.js";
 
 function safeGetViewPref(key) {
   try {
@@ -103,6 +105,13 @@ export function loadViewPreferences() {
     sidebarVisible: true,
     sidebarPinned: true,
     sidebarWidth: 300,
+    flowsLeftSidebarVisible: true,
+    flowsLeftSidebarPinned: true,
+    flowsLeftSidebarWidth: 300,
+    flowsRightInspectorVisible: true,
+    flowsRightInspectorPinned: true,
+    flowsRightInspectorWidth: 390,
+    flowsActiveSectionMode: "basic",
     splitVertical: false,
     splitRatio: 48,
     responseMaximized: false,
@@ -144,6 +153,13 @@ export function saveViewPreferences(state) {
         sidebarVisible: state.sidebarVisible,
         sidebarPinned: state.sidebarPinned,
         sidebarWidth: state.sidebarWidth,
+        flowsLeftSidebarVisible: state.flowsLeftSidebarVisible ?? true,
+        flowsLeftSidebarPinned: state.flowsLeftSidebarPinned ?? true,
+        flowsLeftSidebarWidth: state.flowsLeftSidebarWidth || 300,
+        flowsRightInspectorVisible: state.flowsRightInspectorVisible ?? true,
+        flowsRightInspectorPinned: state.flowsRightInspectorPinned ?? true,
+        flowsRightInspectorWidth: state.flowsRightInspectorWidth || 390,
+        flowsActiveSectionMode: state.flowStudioUi?.activeSectionMode || state.flowsActiveSectionMode || "basic",
         splitVertical: state.splitVertical,
         splitRatio: state.splitRatio,
         responseMaximized: state.responseMaximized,
@@ -187,9 +203,59 @@ export function createInitialApplicationState() {
     history: [],
     customFlows: [],
     activeFlowId: null,
+    flowStudioUi: {
+      activeSectionMode: prefs.flowsActiveSectionMode || "basic",
+      selectedNodeId: null,
+      selectedEdgeId: null,
+      inspectorTab: "node",
+      basicSelectedStepReqId: null,
+      connectingFrom: null,
+      compareRunIdA: null,
+      compareRunIdB: null,
+      endpointSearchQuery: "",
+      execStatusByNode: {},
+      execAttemptByNode: {},
+      takenEdgeIds: [],
+      focusedErrorNodeId: null,
+      focusedErrorEdgeId: null,
+      lastValidation: null,
+      activeController: null,
+      isRunning: false,
+      isPaused: false
+    },
     inFlightReqId: null,
     foldedRespLines: {}
   };
+}
+
+function getAllRequestsFlat(state) {
+  const all = [];
+  for (const col of state.collections || []) {
+    for (const r of col.requests || []) {
+      all.push({ ...r, collectionName: col.metadata?.name || "Collection" });
+    }
+  }
+  return all;
+}
+
+function sanitizeFlowsForStorage(flows, state) {
+  const allReqs = getAllRequestsFlat(state);
+  return (flows || []).map((flw) => {
+    const migrated = migrateFlowToV2(flw, allReqs);
+    // Redactar cualquier posible secreto dentro de flowVariables, lastReport y executionHistory
+    const rawStr = JSON.stringify({
+      ...migrated,
+      undoStack: (migrated.undoStack || []).slice(-15),
+      redoStack: (migrated.redoStack || []).slice(-15),
+      executionHistory: (migrated.executionHistory || []).slice(0, 12)
+    });
+    const maskedStr = maskSecretsInString(rawStr, state);
+    try {
+      return JSON.parse(maskedStr);
+    } catch {
+      return migrated;
+    }
+  });
 }
 
 export function restoreWorkspaceFromLocalStorage(state) {
@@ -238,8 +304,13 @@ export function restoreWorkspaceFromLocalStorage(state) {
       state.history = parsed.history;
     }
     if (Array.isArray(parsed.customFlows)) {
-      state.customFlows = parsed.customFlows;
+      const allReqs = getAllRequestsFlat(state);
+      state.customFlows = parsed.customFlows.map((f) => migrateFlowToV2(f, allReqs));
       state.activeFlowId = parsed.activeFlowId || state.customFlows[0]?.id || null;
+      const activeFlw = state.customFlows.find((f) => f.id === state.activeFlowId);
+      if (activeFlw && state.flowStudioUi) {
+        state.flowStudioUi.activeSectionMode = activeFlw.mode === "advanced" ? "advanced" : "basic";
+      }
     }
     ensureUniqueWorkspaceIds(state);
   } catch {}
@@ -272,6 +343,9 @@ export function persistWorkspaceToLocalStorage(state) {
       }))
     }));
     const encryptedOpenTabs = (state.openTabs || []).map((r) => encryptRequestSensitiveFields(r));
+    const sanitizedFlows = sanitizeFlowsForStorage(state.customFlows, state);
+    // Importante: NO reemplazar las referencias en memoria de state.customFlows para evitar
+    // perder el foco, truncar entradas o desconectar activeFlow durante edición/ejecución.
 
     localStorage.setItem(
       WORKSPACE_STORAGE_KEY,
@@ -283,7 +357,7 @@ export function persistWorkspaceToLocalStorage(state) {
         openTabs: encryptedOpenTabs,
         activeTabId: state.activeTabId,
         history: (state.history || []).slice(0, 100),
-        customFlows: state.customFlows,
+        customFlows: sanitizedFlows,
         activeFlowId: state.activeFlowId
       })
     );

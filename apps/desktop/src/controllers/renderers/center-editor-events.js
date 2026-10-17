@@ -4,6 +4,7 @@
  */
 import { translate } from "../../lang/i18n.js";
 import { syncActiveRequestToCollection } from "./workspace-helpers.js";
+import { getByDotPath, maskSecretsInString } from "../../services/http/index.js";
 
 export function bindCenterEditorSubTabEvents(state, req, pane, renderCenterEditorFn, renderAll) {
   if (state.reqSubTab === "params") {
@@ -374,7 +375,7 @@ export function bindCenterEditorSubTabEvents(state, req, pane, renderCenterEdito
         enabled: true,
         variableName: translate(state.lang, "environments.defaultNewVarKey"),
         source: "json_path",
-        path: "id"
+        path: "results[0].name"
       });
       syncActiveRequestToCollection(state);
       renderCenterEditorFn(state, renderAll);
@@ -393,7 +394,26 @@ export function bindCenterEditorSubTabEvents(state, req, pane, renderCenterEdito
     });
     pane.querySelectorAll("[data-ext-path]").forEach((inp) => {
       inp.addEventListener("input", (e) => {
-        req.extractions[Number(inp.getAttribute("data-ext-path"))].path = e.target.value;
+        const idx = Number(inp.getAttribute("data-ext-path"));
+        const ex = req.extractions[idx];
+        if (!ex) return;
+        ex.path = e.target.value;
+        const cachedResp = state.responsesByReqId?.[req.id] || null;
+        let cachedBodyObj = cachedResp?.bodyObj || null;
+        if (!cachedBodyObj && typeof cachedResp?.body === "string" && cachedResp.body.trim()) {
+          try { cachedBodyObj = JSON.parse(cachedResp.body); } catch {}
+        }
+        if (cachedBodyObj && ex.path) {
+          const liveVal = getByDotPath(cachedBodyObj, ex.path);
+          if (liveVal !== undefined && liveVal !== null) {
+            const strVal = typeof liveVal === "object" ? JSON.stringify(liveVal) : String(liveVal);
+            if (ex.enabled && ex.variableName) {
+              state.runtimeVars[ex.variableName] = strVal;
+            }
+            const liveTd = pane.querySelector(`[data-ext-live-val="${idx}"]`);
+            if (liveTd) liveTd.textContent = maskSecretsInString(strVal, state);
+          }
+        }
         syncActiveRequestToCollection(state);
       });
     });

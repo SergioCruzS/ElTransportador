@@ -1,11 +1,6 @@
 /**
- * Manejadores CRUD de Colecciones, Carpetas, Solicitudes y Flujos — ElTransportador v1.0.1
+ * Manejadores CRUD de Colecciones, Carpetas, Solicitudes y Flujos — ElTransportador v1.2.0
  * Archivo: apps/desktop/src/controllers/handlers/collection-crud-handlers.js
- *
- * Incluye:
- * - Al crear una nueva colección (`+ Colección`), si ya existe una colección con ese nombre, muestra el aviso
- *   dentro del mismo modal sin cerrarlo para que el usuario modifique el nombre y pueda guardarla.
- * - Botón para expandir o colapsar todas las colecciones y carpetas (`#btn-toggle-expand-all`).
  */
 import { translate } from "../../lang/i18n.js";
 import {
@@ -16,6 +11,7 @@ import {
   isCollectionNameDuplicate,
   getNextAvailableCollectionName
 } from "../../services/storage-sync.js";
+import { migrateFlowToV2, getNextConsecutiveFlowName } from "../../services/flows/index.js";
 import {
   showToast,
   openInputDialog,
@@ -39,22 +35,51 @@ export function bindCollectionAndFlowCrudHandlers(state, renderAll) {
   });
 
   document.getElementById("btn-create-custom-flow")?.addEventListener("click", () => {
+    const activeSectionMode = state.flowStudioUi?.activeSectionMode === "advanced" ? "advanced" : "basic";
+    const sectionFlowsCount = (state.customFlows || []).filter(
+      (f) => (f.mode === "advanced" ? "advanced" : "basic") === activeSectionMode
+    ).length;
+    const defaultPrefix = state.lang === "en" ? "Flow" : "Flujo";
+    const suggestedName = getNextConsecutiveFlowName(
+      `${defaultPrefix} ${sectionFlowsCount + 1}`,
+      state.customFlows,
+      activeSectionMode
+    );
+
     openInputDialog({
       title: translate(state.lang, "flows.btnNewFlow"),
       label: translate(state.lang, "request.nameLabel"),
-      initialValue: `Flow ${state.customFlows.length + 1}`,
+      initialValue: suggestedName,
       onConfirm: (name) => {
-        const nf = {
+        const allRequests = state.collections.flatMap((c) => c.requests || []);
+        const finalName = getNextConsecutiveFlowName(name, state.customFlows, activeSectionMode);
+        const rawFlow = {
           id: generateUniqueEntityId("flw"),
-          name,
+          name: finalName,
+          mode: activeSectionMode,
           selectedRequestIds: [],
-          lastReport: null
+          stepOverrides: {},
+          flowVariables: [],
+          graph: activeSectionMode === "advanced" ? undefined : null,
+          lastReport: null,
+          executionHistory: []
         };
+        const nf = migrateFlowToV2(rawFlow, allRequests);
+        if (activeSectionMode === "basic") {
+          nf.mode = "basic";
+          nf.graph = null;
+        } else {
+          nf.mode = "advanced";
+        }
         state.customFlows.push(nf);
         state.activeFlowId = nf.id;
+        if (state.flowStudioUi) {
+          state.flowStudioUi.selectedNodeId = nf.graph?.nodes?.[0]?.id || null;
+          state.flowStudioUi.selectedEdgeId = null;
+        }
         persistWorkspaceToLocalStorage(state);
         renderFlowsStudioView(state, renderAll);
-        showToast(translate(state.lang, "toasts.createdFlow", { name }));
+        showToast(translate(state.lang, "toasts.createdFlow", { name: finalName }));
       }
     });
   });

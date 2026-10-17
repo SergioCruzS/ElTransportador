@@ -4,6 +4,7 @@
  */
 import { translate } from "../../lang/i18n.js";
 import { escapeHtml, escapeAttr } from "./dom-utils.js";
+import { getByDotPath, maskSecretsInString } from "../../services/http/index.js";
 
 export function buildCenterEditorSubTabHtml(state, req) {
   let subContentHtml = "";
@@ -259,7 +260,7 @@ export function buildCenterEditorSubTabHtml(state, req) {
                 <option value="duration_ms" ${a.target === "duration_ms" ? "selected" : ""}>duration_ms</option>
               </select>
             </td>
-            <td><input class="etp-kv-input" data-ast-prop="${idx}" value="${escapeAttr(a.property || "")}" placeholder="data.id" /></td>
+            <td><input class="etp-kv-input" data-ast-prop="${idx}" value="${escapeAttr(a.property || "")}" placeholder="results[0].name" /></td>
             <td>
               <select class="etp-select" data-ast-op="${idx}" style="height:26px;font-size:11.5px;width:100%;">
                 <option value="equals" ${a.operator === "equals" ? "selected" : ""}>equals</option>
@@ -277,18 +278,36 @@ export function buildCenterEditorSubTabHtml(state, req) {
       )
       .join("");
 
+    const cachedResp = state.responsesByReqId?.[req.id] || null;
+    let cachedBodyObj = cachedResp?.bodyObj || null;
+    if (!cachedBodyObj && typeof cachedResp?.body === "string" && cachedResp.body.trim()) {
+      try { cachedBodyObj = JSON.parse(cachedResp.body); } catch {}
+    }
     const extRows = req.extractions
-      .map(
-        (ex, idx) => `
+      .map((ex, idx) => {
+        let currentVal = state.runtimeVars[ex.variableName];
+        if (cachedBodyObj && ex.path) {
+          const liveVal = getByDotPath(cachedBodyObj, ex.path);
+          if (liveVal !== undefined && liveVal !== null) {
+            currentVal = typeof liveVal === "object" ? JSON.stringify(liveVal) : String(liveVal);
+            if (ex.enabled && ex.variableName) {
+              state.runtimeVars[ex.variableName] = currentVal;
+            }
+          }
+        }
+        const displayVal = currentVal !== undefined && currentVal !== ""
+          ? maskSecretsInString(String(currentVal), state)
+          : translate(state.lang, "request.pendingVal");
+        return `
           <tr>
             <td><input type="checkbox" data-ext-toggle="${idx}" ${ex.enabled ? "checked" : ""} /></td>
-            <td><input class="etp-kv-input" data-ext-var="${idx}" value="${escapeAttr(ex.variableName || "")}" /></td>
-            <td><input class="etp-kv-input" data-ext-path="${idx}" value="${escapeAttr(ex.path || "")}" /></td>
-            <td style="font-family:var(--font-mono);color:var(--accent-secondary);">${escapeHtml(state.runtimeVars[ex.variableName] || translate(state.lang, "request.pendingVal"))}</td>
+            <td><input class="etp-kv-input" data-ext-var="${idx}" value="${escapeAttr(ex.variableName || "")}" placeholder="mi_variable" /></td>
+            <td><input class="etp-kv-input" data-ext-path="${idx}" value="${escapeAttr(ex.path || "")}" placeholder="results[0].name" /></td>
+            <td style="font-family:var(--font-mono);color:var(--accent-secondary);" data-ext-live-val="${idx}">${escapeHtml(displayVal)}</td>
             <td><button type="button" class="etp-icon-btn danger" data-ext-del="${idx}">×</button></td>
           </tr>
-        `
-      )
+        `;
+      })
       .join("");
 
     subContentHtml = `

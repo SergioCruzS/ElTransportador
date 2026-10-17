@@ -1,21 +1,46 @@
 /**
- * Evaluador Declarativo de Aserciones y Extractor JSONPath — ElTransportador v1.0.1
+ * Evaluador Declarativo de Aserciones y Extractor JSONPath — ElTransportador v1.2.0
+ * Soporta rutas con notación de punto y corchetes para listas/arreglos (ej. `results[0].name`, `items[1][0].id`, `[0].title`, `$.results[0].name`).
  * Archivo: scripts/core-engine/assertions.mjs
  */
 export class AssertionEvaluator {
   static getJsonPath(obj, pathStr) {
-    if (!obj || typeof obj !== 'object' || !pathStr) return undefined;
-    const segments = String(pathStr)
-      .split('.')
-      .map((s) => s.trim())
-      .filter(Boolean);
+    if (obj === null || obj === undefined || typeof obj !== 'object' || !pathStr) return undefined;
+    let clean = String(pathStr).trim();
+    if (!clean) return undefined;
+    if (clean === '$') return obj;
+    if (clean.startsWith('$.')) clean = clean.slice(2);
+    else if (clean.startsWith('$[')) clean = clean.slice(1);
+
+    const tokens = [];
+    const tokenRegex = /([^\.\[\]]+)|\[(?:\s*(['"])(.*?)\2\s*|\s*([^\]]+?)\s*)\]/g;
+    let match;
+    while ((match = tokenRegex.exec(clean)) !== null) {
+      const prop =
+        match[1] !== undefined
+          ? match[1].trim()
+          : match[3] !== undefined
+          ? match[3]
+          : (match[4] || '').trim();
+      if (prop !== '') tokens.push(prop);
+    }
+    if (tokens.length === 0) return undefined;
+
     let cur = obj;
-    for (const seg of segments) {
+    for (const seg of tokens) {
       if (cur === null || cur === undefined) return undefined;
+      if (seg === '__proto__' || seg === 'constructor' || seg === 'prototype') return undefined;
       if (Array.isArray(cur)) {
+        if (seg === 'length') {
+          cur = cur.length;
+          continue;
+        }
         const idx = Number(seg);
-        if (Number.isNaN(idx)) return undefined;
-        cur = cur[idx];
+        if (!Number.isInteger(idx)) return undefined;
+        const resolvedIdx = idx < 0 ? cur.length + idx : idx;
+        cur = cur[resolvedIdx];
+      } else if (typeof cur === 'string' && seg === 'length') {
+        cur = cur.length;
       } else if (typeof cur === 'object' && Object.prototype.hasOwnProperty.call(cur, seg)) {
         cur = cur[seg];
       } else {
@@ -157,4 +182,3 @@ export class AssertionEvaluator {
     return extracted;
   }
 }
-

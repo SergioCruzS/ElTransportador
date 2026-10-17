@@ -1,8 +1,8 @@
 /**
- * Constantes y Registro de Solicitudes en Curso — ElTransportador Core Engine v1.0.1
+ * Constantes y Registro de Solicitudes en Curso — ElTransportador Core Engine v1.2.0
  * Archivo: scripts/core-engine/constants.mjs
  */
-export const APP_VERSION = "1.0.1";
+export const APP_VERSION = "1.2.0";
 export const CURRENT_SCHEMA_VERSION = 1;
 export const SCHEMA_URI = "https://eltransportador.dev/schemas/collection-v1.json";
 export const ENV_PREFIX = "ELTRANSPORTADOR_";

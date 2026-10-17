@@ -103,7 +103,7 @@ export function localizeResponseForLang(resp, lang = "es") {
 }
 
 async function tryTauriNativeInvoke(req, state, finalUrl) {
-  const tauriInvoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+  const tauriInvoke = globalThis.__TAURI__?.core?.invoke || globalThis.__TAURI_INTERNALS__?.invoke;
   if (typeof tauriInvoke !== "function") return null;
   const lang = state.lang || "es";
   try {

@@ -1,8 +1,8 @@
 /**
- * Constantes Globales de Almacenamiento y Seguridad — ElTransportador v1.0.1
+ * Constantes Globales de Almacenamiento y Seguridad — ElTransportador v1.2.0
  * Archivo: apps/desktop/src/services/storage/constants.js
  */
-export const APP_VERSION = "1.0.1";
+export const APP_VERSION = "1.2.0";
 export const REDACTED = "[REDACTED:ELTRANSPORTADOR_SECRET]";
 export const WORKSPACE_STORAGE_KEY = "eltransportador_workspace_v1_0";
 export const VIEW_PREFS_STORAGE_KEY = "eltransportador_view_prefs_v1_0";

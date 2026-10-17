@@ -1493,3 +1493,473 @@ mark.etp-search-highlight {
 
 .etp-pass { color: var(--status-success); font-weight: 600; }
 .etp-fail { color: var(--status-danger); font-weight: 600; }
+
+/* ============================================================================
+ * Evolución Flows Studio v1.2.0: Modo Básico Mejorado + Lienzo Visual Avanzado
+ * ============================================================================ */
+.etp-flow-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+.etp-flow-mode-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+.etp-flow-mode-btn.active {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+.etp-flow-mode-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.etp-flows-advanced-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Paleta Izquierda de Nodos y Plantillas */
+.etp-flow-palette {
+  width: 220px;
+  min-width: 200px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  overflow-y: auto;
+  z-index: 5;
+}
+.etp-palette-node-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+.etp-palette-node-btn:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+}
+.etp-palette-node-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+}
+
+/* Lienzo Interactivo con Cuadrícula Sutil */
+.etp-flow-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-app);
+  background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
+  background-size: 20px 20px;
+  user-select: none;
+  touch-action: none;
+  outline: none;
+}
+.etp-flow-canvas-wrap:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+}
+
+.etp-flow-canvas-toolbar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 15;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.etp-flow-canvas-toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.etp-flow-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2400px;
+  height: 1600px;
+  transform-origin: 0 0;
+}
+
+.etp-flow-edges-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2400px;
+  height: 1600px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+.etp-flow-edge-path {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2.2px;
+  pointer-events: stroke;
+  cursor: pointer;
+  transition: stroke 0.15s, stroke-width 0.15s;
+}
+.etp-flow-edge-path:hover,
+.etp-flow-edge-path.selected {
+  stroke: var(--accent-primary);
+  stroke-width: 3.2px;
+}
+.etp-flow-edge-path.taken {
+  stroke: var(--status-success);
+  stroke-width: 3px;
+  stroke-dasharray: 6 4;
+  animation: etpFlowDash 0.8s linear infinite;
+}
+.etp-flow-edge-path.failed-edge {
+  stroke: var(--status-danger) !important;
+  stroke-width: 3.6px !important;
+}
+@keyframes etpFlowDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.etp-flow-edge-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-secondary);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Nodos del Grafo */
+.etp-flow-node {
+  position: absolute;
+  width: 224px;
+  min-height: 78px;
+  background: var(--bg-panel);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 9px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 4;
+  cursor: grab;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.etp-flow-node:active {
+  cursor: grabbing;
+}
+.etp-flow-node.selected {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25), 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+.etp-flow-node:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+.etp-flow-node.type-start { border-top: 4px solid var(--accent-primary); }
+.etp-flow-node.type-http_request { border-top: 4px solid var(--method-post); }
+.etp-flow-node.type-condition { border-top: 4px solid var(--status-warning); }
+.etp-flow-node.type-delay { border-top: 4px solid var(--method-patch); }
+.etp-flow-node.type-transform { border-top: 4px solid var(--method-options); }
+.etp-flow-node.type-subflow { border-top: 4px solid var(--method-get); }
+.etp-flow-node.type-group_note {
+  background: rgba(2, 132, 199, 0.06);
+  border-style: dashed;
+  z-index: 1;
+}
+.etp-flow-node.type-end_success { border-top: 4px solid var(--status-success); }
+.etp-flow-node.type-end_error { border-top: 4px solid var(--status-danger); }
+
+/* Estados de Ejecución en Tiempo Real sobre Nodos */
+.etp-flow-node.exec-running,
+.etp-flow-node.exec-retrying {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.32) !important;
+}
+.etp-flow-node.exec-success {
+  border-color: var(--status-success) !important;
+}
+.etp-flow-node.exec-warning {
+  border-color: var(--status-warning) !important;
+}
+.etp-flow-node.exec-failed {
+  border-color: var(--status-danger) !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.32) !important;
+}
+
+.etp-flow-node-header {
+  padding: 6px 9px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 7px 7px 0 0;
+}
+.etp-flow-node-body {
+  padding: 7px 9px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.etp-flow-node-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Puertos de Entrada y Salida */
+.etp-flow-ports-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 6px;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border-subtle);
+}
+.etp-flow-port {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: crosshair;
+  transition: all 0.12s;
+}
+.etp-flow-port:hover,
+.etp-flow-port.connecting-source {
+  border-color: var(--accent-primary);
+  background: var(--bg-active);
+  color: var(--accent-primary);
+  transform: scale(1.06);
+}
+.etp-flow-port.port-success, .etp-flow-port.port-true { border-color: var(--status-success); color: var(--status-success); }
+.etp-flow-port.port-failure, .etp-flow-port.port-false { border-color: var(--status-danger); color: var(--status-danger); }
+.etp-flow-port.port-timeout { border-color: var(--status-warning); color: var(--status-warning); }
+
+/* Minimapa Ligero */
+.etp-flow-minimap {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 170px;
+  height: 108px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  z-index: 15;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* Inspector Contextual Derecho */
+.etp-flow-inspector {
+  width: 390px;
+  min-width: 330px;
+  max-width: 460px;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  z-index: 10;
+}
+.etp-flow-inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.etp-json-capture-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+}
+.etp-json-capture-chip:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-active);
+  color: var(--accent-primary);
+}
+
+/* Mejoras Flows Studio v1.2.0: Menús Independientes Redimensionables, Tablas sin Desbordamiento, Drag & Drop de Pasos y Botón Eliminar en Nodos */
+.etp-flows-studio {
+  position: relative;
+}
+.etp-flows-sidebar {
+  z-index: 30;
+  flex-shrink: 0;
+}
+.etp-flows-sidebar.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border-right: none;
+}
+.etp-flows-sidebar.unpinned {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.22);
+  border-right: 1px solid var(--border-strong);
+}
+.etp-flows-sidebar.collapsed + .etp-sidebar-resizer {
+  display: none;
+}
+
+.etp-flow-inspector {
+  width: 390px;
+  min-width: 280px;
+  max-width: 620px;
+  flex-shrink: 0;
+  z-index: 28;
+}
+.etp-flow-inspector.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden;
+  border-left: none;
+}
+.etp-flow-inspector.unpinned-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.22);
+  border-left: 1px solid var(--border-strong);
+}
+.etp-inspector-resizer {
+  width: 5px;
+  background: var(--border-subtle);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  z-index: 29;
+}
+.etp-inspector-resizer:hover,
+.etp-inspector-resizer.dragging {
+  background: var(--accent-primary);
+}
+.etp-inspector-resizer.hidden-resizer {
+  display: none;
+}
+
+.etp-flow-step-card.drag-over {
+  border-top: 2.5px solid var(--accent-primary) !important;
+  background: var(--bg-active) !important;
+}
+
+.etp-node-delete-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.etp-node-delete-btn:hover {
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--status-danger);
+}
+
+.etp-table-scroll-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 6px;
+}
+.etp-table-scroll-wrap .etp-kv-table {
+  min-width: 440px;
+  table-layout: fixed;
+}
+.etp-table-scroll-wrap .etp-kv-table th,
+.etp-table-scroll-wrap .etp-kv-table td {
+  padding: 4px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

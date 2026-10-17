@@ -1,5 +1,5 @@
 /**
- * Renderizadores de Preferencias de Disposición Visual y Selector de Entorno — ElTransportador v1.0.1
+ * Renderizadores de Preferencias de Disposición Visual y Selector de Entorno — ElTransportador v1.2.0
  * Archivo: apps/desktop/src/controllers/renderers/layout-prefs.js
  */
 import { translate } from "../../lang/i18n.js";
@@ -9,8 +9,24 @@ export function renderViewLayoutPreferences(state) {
   const wsRoot = document.getElementById("workspace-root");
   const flowsView = document.getElementById("flows-studio-view");
   const btnFlowLbl = document.getElementById("lbl-btn-flow");
+  const isFlowsMode = state.activeMainView === "flows";
 
-  if (state.activeMainView === "flows") {
+  // Ocultar controles exclusivos del Tester de APIs cuando se está en el Estudio de Flujos
+  const apiTesterTopbarEls = [
+    document.getElementById("btn-toggle-sidebar"),
+    document.querySelector(".etp-topbar-center"),
+    document.getElementById("lbl-env"),
+    document.getElementById("env-select"),
+    document.getElementById("btn-open-vault"),
+    document.getElementById("btn-open-import")
+  ];
+  for (const el of apiTesterTopbarEls) {
+    if (el) {
+      el.style.display = isFlowsMode ? "none" : "";
+    }
+  }
+
+  if (isFlowsMode) {
     wsRoot.style.display = "none";
     flowsView.classList.add("active");
     if (btnFlowLbl) btnFlowLbl.textContent = translate(state.lang, "topbar.btnFlowsBack");
@@ -20,22 +36,73 @@ export function renderViewLayoutPreferences(state) {
     if (btnFlowLbl) btnFlowLbl.textContent = translate(state.lang, "topbar.btnFlows");
   }
 
+  // Menú lateral de la pantalla principal (Tester de APIs) — independiente del de Flujos
   const sidebar = document.getElementById("main-sidebar");
   const pinBtn = document.getElementById("lbl-pin-state");
   const toggleBtn = document.getElementById("btn-toggle-sidebar");
   const toolbar = document.getElementById("sidebar-toolbar");
 
-  sidebar.style.width = state.sidebarVisible ? state.sidebarWidth + "px" : "0px";
-  sidebar.style.minWidth = state.sidebarVisible ? state.sidebarWidth + "px" : "0px";
-  sidebar.classList.toggle("collapsed", !state.sidebarVisible);
-  sidebar.classList.toggle("unpinned", !state.sidebarPinned && state.sidebarVisible);
-  toggleBtn.classList.toggle("active-toggle", state.sidebarVisible);
-  pinBtn.textContent = state.sidebarPinned
-    ? translate(state.lang, "sidebar.pinFixed")
-    : translate(state.lang, "sidebar.pinFloating");
+  if (sidebar) {
+    sidebar.style.width = state.sidebarVisible ? state.sidebarWidth + "px" : "0px";
+    sidebar.style.minWidth = state.sidebarVisible ? state.sidebarWidth + "px" : "0px";
+    sidebar.classList.toggle("collapsed", !state.sidebarVisible);
+    sidebar.classList.toggle("unpinned", !state.sidebarPinned && state.sidebarVisible);
+  }
+  if (toggleBtn) toggleBtn.classList.toggle("active-toggle", state.sidebarVisible);
+  if (pinBtn) {
+    pinBtn.textContent = state.sidebarPinned
+      ? translate(state.lang, "sidebar.pinFixed")
+      : translate(state.lang, "sidebar.pinFloating");
+  }
 
   if (toolbar) {
     toolbar.style.display = state.sideTab === "collections" ? "flex" : "none";
+  }
+
+  // Menú lateral izquierdo de Flows Studio — independiente
+  const flowsLeftSidebar = document.getElementById("flows-left-sidebar");
+  const flowsLeftPinLbl = document.getElementById("lbl-flows-left-pin-state");
+  const flowsLeftToggleBtn = document.getElementById("btn-toggle-flows-left-sidebar");
+  const fLeftVisible = state.flowsLeftSidebarVisible !== false;
+  const fLeftPinned = state.flowsLeftSidebarPinned !== false;
+  const fLeftWidth = Math.min(540, Math.max(220, Number(state.flowsLeftSidebarWidth) || 300));
+
+  if (flowsLeftSidebar) {
+    flowsLeftSidebar.style.width = fLeftVisible ? fLeftWidth + "px" : "0px";
+    flowsLeftSidebar.style.minWidth = fLeftVisible ? fLeftWidth + "px" : "0px";
+    flowsLeftSidebar.classList.toggle("collapsed", !fLeftVisible);
+    flowsLeftSidebar.classList.toggle("unpinned", !fLeftPinned && fLeftVisible);
+  }
+  if (flowsLeftPinLbl) {
+    flowsLeftPinLbl.textContent = fLeftPinned
+      ? translate(state.lang, "sidebar.pinFixed")
+      : translate(state.lang, "sidebar.pinFloating");
+  }
+  if (flowsLeftToggleBtn) {
+    flowsLeftToggleBtn.classList.toggle("active-toggle", fLeftVisible);
+  }
+
+  // Menú lateral derecho (Inspector) de Flows Studio — independiente
+  const flowsRightInspector = document.getElementById("flows-right-inspector");
+  const flowsRightPinLbl = document.getElementById("lbl-flows-right-pin-state");
+  const flowsRightToggleBtn = document.getElementById("btn-toggle-flows-right-inspector");
+  const fRightVisible = state.flowsRightInspectorVisible !== false;
+  const fRightPinned = state.flowsRightInspectorPinned !== false;
+  const fRightWidth = Math.min(620, Math.max(280, Number(state.flowsRightInspectorWidth) || 390));
+
+  if (flowsRightInspector) {
+    flowsRightInspector.style.width = fRightVisible ? fRightWidth + "px" : "0px";
+    flowsRightInspector.style.minWidth = fRightVisible ? fRightWidth + "px" : "0px";
+    flowsRightInspector.classList.toggle("collapsed", !fRightVisible);
+    flowsRightInspector.classList.toggle("unpinned-right", !fRightPinned && fRightVisible);
+  }
+  if (flowsRightPinLbl) {
+    flowsRightPinLbl.textContent = fRightPinned
+      ? translate(state.lang, "sidebar.pinFixed")
+      : translate(state.lang, "sidebar.pinFloating");
+  }
+  if (flowsRightToggleBtn) {
+    flowsRightToggleBtn.classList.toggle("active-toggle", fRightVisible);
   }
 
   const splitContainer = document.getElementById("main-split-container");

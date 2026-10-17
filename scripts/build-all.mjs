@@ -1,5 +1,5 @@
 /**
- * Compilador, Empaquetador Modular y Minificador de Release de ElTransportador v1.0.1 (`scripts/build-all.mjs`)
+ * Compilador, Empaquetador Modular y Minificador de Release de ElTransportador v1.2.0 (`scripts/build-all.mjs`)
  * - Ensambla los componentes HTML modulares (`apps/desktop/src/components/*.html`) dentro de `apps/desktop/dist/index.html`.
  * - Copia y minifica recursivamente toda la estructura modular (`lang/`, `services/storage/`, `services/http/`,
  *   `controllers/renderers/`, `controllers/handlers/`, `styles/`) hacia `apps/desktop/dist/`.
@@ -230,11 +230,15 @@ try {
       ["services", "storage", "constants.js"],
       ["services", "storage", "vault-crypto.js"],
       ["services", "storage", "collection-sanitizer.js"],
-      ["services", "storage", "workspace-state.js"],
       ["services", "http", "variable-interpolation.js"],
       ["services", "http", "wire-preview.js"],
       ["services", "http", "assertions-evaluator.js"],
       ["services", "http", "request-executor.js"],
+      ["services", "flows", "flow-schema.js"],
+      ["services", "flows", "flow-validator.js"],
+      ["services", "flows", "flow-templates.js"],
+      ["services", "flows", "flow-orchestrator.js"],
+      ["services", "storage", "workspace-state.js"],
       ["controllers", "renderers", "dom-utils.js"],
       ["controllers", "renderers", "workspace-helpers.js"],
       ["controllers", "renderers", "layout-prefs.js"],
@@ -248,6 +252,9 @@ try {
       ["controllers", "renderers", "center-editor.js"],
       ["controllers", "renderers", "json-viewer.js"],
       ["controllers", "renderers", "response-panel.js"],
+      ["controllers", "renderers", "flows", "flows-basic-view.js"],
+      ["controllers", "renderers", "flows", "flows-inspector-view.js"],
+      ["controllers", "renderers", "flows", "flows-canvas-view.js"],
       ["controllers", "renderers", "flows-studio.js"],
       ["controllers", "renderers", "index.js"],
       ["controllers", "handlers", "file-clipboard-actions.js"],
@@ -284,5 +291,5 @@ try {
 
 const savedPct = (((rawTotalBytes - minifiedTotalBytes) / rawTotalBytes) * 100).toFixed(1);
 console.log(
-  `✓ Release v1.0.1 compilado y minificado en ${DIST_DIR} (Original: ${(rawTotalBytes / 1024).toFixed(2)} KB -> Minificado: ${(minifiedTotalBytes / 1024).toFixed(2)} KB, ahorro del ${savedPct}%).`
+  `✓ Release v1.2.0 compilado y minificado en ${DIST_DIR} (Original: ${(rawTotalBytes / 1024).toFixed(2)} KB -> Minificado: ${(minifiedTotalBytes / 1024).toFixed(2)} KB, ahorro del ${savedPct}%).`
 );

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Suite de Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones — ElTransportador v1.0.1
+Suite de Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones — ElTransportador v1.2.0
 Verifica:
 1. Arquitectura atomizada por dominios con archivos `index` (`scripts/core-engine/`, `services/storage/`, `services/http/`, `controllers/renderers/`, `controllers/handlers/`, `lang/`).
 2. Servidor bridge IPC con autenticación `X-ETP-Bridge-Token` y entrega de módulos ES6.
@@ -11,6 +11,7 @@ Verifica:
 7. Doble confirmación (Paso 1 de 2 y Paso 2 de 2) al querer eliminar una carpeta o colección que tenga 1 o más solicitudes.
 8. Colapsar y expandir colecciones y carpetas en el panel lateral.
 9. Selección única de solicitudes entre colecciones y movimiento entre colecciones.
+10. Estudio de Flujos v1.2.0: ocultamiento de botones del tester en topbar, flujos independientes por sección, conversión con numeración consecutiva, menús laterales izquierdo/derecho independientes (Fijo/Flotante/Ocultar), + Variable inicial, búsqueda de endpoint, políticas traducidas, confirmación de plantilla y reporte seguro.
 """
 import os
 import re
@@ -23,6 +24,7 @@ import urllib.error
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -184,7 +186,7 @@ def run_ui_tests():
         }
         """)
 
-        assert driver.find_element(By.ID, "lbl-app-version").text.strip() == "v1.0.1"
+        assert driver.find_element(By.ID, "lbl-app-version").text.strip() == "v1.2.0"
 
         # 1. Verificar I18N en Inglés, colores JSON, numeración de líneas de respuesta, plegado entre llaves y búsqueda con resaltado en "Ver todo"
         driver.find_element(By.ID, "btn-toggle-lang").click()
@@ -196,7 +198,6 @@ def run_ui_tests():
         status_badge_en = driver.find_element(By.ID, "resp-status-badge").text.strip()
         assert status_badge_en == "INVALID URL"
 
-        # Verificar que el JSON devuelto tiene clases de color (.etp-json-key, .etp-json-string), numeración .etp-resp-line-num y botón de plegado [data-json-fold]
         json_keys = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-json-key")
         json_strings = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-json-string")
         resp_lines = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
@@ -206,7 +207,6 @@ def run_ui_tests():
         assert len(resp_lines) == 4, f"El JSON formateado de error debe tener 4 líneas numeradas, tiene {len(resp_lines)}"
         assert len(fold_btns) == 1, "La línea de apertura '{' debe tener control para colapsar/expandir entre llaves"
 
-        # Probar colapsar entre llaves '{ ... }' y luego expandir
         fold_btns[0].click()
         time.sleep(0.2)
         resp_lines_folded = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
@@ -216,7 +216,6 @@ def run_ui_tests():
         time.sleep(0.2)
         assert len(driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")) == 4
 
-        # Probar búsqueda en respuesta: en modo Filtrar líneas vs en modo Ver todo (con resaltado <mark class="etp-search-highlight">)
         resp_search = driver.find_element(By.ID, "resp-search-input")
         resp_search.send_keys("HTTP")
         time.sleep(0.2)
@@ -271,7 +270,6 @@ def run_ui_tests():
         assert "open" not in modal_input_el.get_attribute("class")
         assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-collection")) == 2
 
-        # Ahora probar renombrar desde el botón edit (✎) poniendo un nombre duplicado -> también debe mantener abierto el modal con #input-dialog-error
         driver.find_element(By.CSS_SELECTOR, "[data-edit-col='1']").click()
         time.sleep(0.2)
         inp_dialog = driver.find_element(By.ID, "input-dialog-field")
@@ -279,7 +277,7 @@ def run_ui_tests():
         inp_dialog.send_keys("Mi Colección Principal")
         driver.find_element(By.ID, "btn-confirm-input-dialog").click()
         time.sleep(0.25)
-        assert "open" in modal_input_el.get_attribute("class"), "Al editar el nombre desde ✎ con un nombre duplicado también debe permanecer abierto el modal mostrando el error"
+        assert "open" in modal_input_el.get_attribute("class")
         assert inline_err_el.is_displayed() and "Modifica el nombre" in inline_err_el.text
 
         inp_dialog.clear()
@@ -300,15 +298,15 @@ def run_ui_tests():
         folder_toggle = driver.find_element(By.CSS_SELECTOR, "[data-toggle-folder-collapse]")
         folder_toggle.click()
         time.sleep(0.2)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 0, "Al colapsar la carpeta deben ocultarse sus solicitudes"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 0
         driver.find_element(By.CSS_SELECTOR, "[data-toggle-folder-collapse]").click()
         time.sleep(0.2)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 1, "Al expandir la carpeta deben mostrarse sus solicitudes"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 1
 
         col_toggles = driver.find_elements(By.CSS_SELECTOR, "[data-toggle-col-collapse]")
         col_toggles[0].click()
         time.sleep(0.2)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")) == 0, "Al colapsar la colección deben ocultarse sus elementos internos"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")) == 0
         driver.find_elements(By.CSS_SELECTOR, "[data-toggle-col-collapse]")[0].click()
         time.sleep(0.2)
         assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")) == 1
@@ -334,46 +332,159 @@ def run_ui_tests():
         confirm_title = driver.find_element(By.ID, "confirm-move-title")
         confirm_msg = driver.find_element(By.ID, "confirm-move-message")
 
-        # 6a. Eliminar carpeta con 1 solicitud: Paso 1 -> Aceptar -> Paso 2 -> Cancelar (no debe eliminarse)
         driver.find_element(By.CSS_SELECTOR, "[data-del-folder]").click()
         time.sleep(0.2)
-        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 1ra confirmación al eliminar carpeta con >=1 solicitud"
+        assert "open" in confirm_modal.get_attribute("class")
         assert "1 de 2" in confirm_title.text
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
         time.sleep(0.2)
-        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 2da confirmación (doble confirmación)"
+        assert "open" in confirm_modal.get_attribute("class")
         assert "2 de 2" in confirm_title.text and "Segunda confirmación" in confirm_msg.text
         driver.find_element(By.ID, "btn-cancel-confirm-move").click()
         time.sleep(0.2)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 1, "Al cancelar en la 2da confirmación la carpeta debe conservarse"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 1
 
-        # Ahora confirmar Paso 1 y Paso 2 para eliminar la carpeta
         driver.find_element(By.CSS_SELECTOR, "[data-del-folder]").click()
         time.sleep(0.2)
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
         time.sleep(0.2)
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
         time.sleep(0.25)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 0, "Tras confirmar los 2 pasos la carpeta debe eliminarse"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 0
 
-        # 6b. Eliminar colección 1 (que aún tiene 1 solicitud en su raíz): Paso 1 -> Aceptar -> Paso 2 -> Aceptar
         driver.find_element(By.CSS_SELECTOR, "[data-del-col='1']").click()
         time.sleep(0.2)
-        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 1ra confirmación al eliminar colección con >=1 solicitud"
+        assert "open" in confirm_modal.get_attribute("class")
         assert "1 de 2" in confirm_title.text
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
         time.sleep(0.2)
-        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 2da confirmación al eliminar colección con >=1 solicitud"
+        assert "open" in confirm_modal.get_attribute("class")
         assert "2 de 2" in confirm_title.text
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
         time.sleep(0.25)
-        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-collection")) == 1, "Tras la doble confirmación la colección debe eliminarse"
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-collection")) == 1
         print("  ✓ [E2E DOUBLE CONFIRM DELETE] Doble confirmación al eliminar carpeta o colección con 1 o más solicitudes verificada")
+
+        # Crear una 2da solicitud en la colección principal para probar reordenamiento en Flujo Básico
+        driver.find_element(By.ID, "btn-new-request").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-new-request").click()
+        time.sleep(0.2)
+
+        # 7. Verificar Flows Studio Dual y las 17 mejoras solicitadas
+        driver.find_element(By.ID, "btn-run-flow").click()
+        time.sleep(0.25)
+
+        # Verificar que al pasar al Estudio de Flujos se ocultan los botones del tester de APIs en la topbar
+        assert not driver.find_element(By.ID, "btn-toggle-sidebar").is_displayed(), "El botón Panel del tester debe ocultarse en Estudio de Flujos"
+        assert not driver.find_element(By.ID, "env-select").is_displayed(), "El selector de entorno del tester debe ocultarse en Estudio de Flujos"
+        assert not driver.find_element(By.ID, "btn-open-vault").is_displayed(), "El botón Entornos y Secretos debe ocultarse en Estudio de Flujos"
+        assert not driver.find_element(By.ID, "btn-open-import").is_displayed(), "El botón Importar/Exportar debe ocultarse en Estudio de Flujos"
+
+        # Crear Flujo Básico ("Flujo 1")
+        driver.find_element(By.ID, "btn-create-custom-flow").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-confirm-input-dialog").click()
+        time.sleep(0.25)
+
+        assert driver.find_element(By.ID, "btn-flow-mode-basic").is_displayed()
+        assert driver.find_element(By.ID, "btn-flow-mode-advanced").is_displayed()
+
+        # Verificar independencia de secciones: al pasar a Modo Avanzado no debe haberse creado ningún flujo avanzado automáticamente
+        driver.find_element(By.ID, "btn-flow-mode-advanced").click()
+        time.sleep(0.25)
+        assert len(driver.find_elements(By.CSS_SELECTOR, "#flows-sidebar-list [data-select-flow]")) == 0, "Crear un flujo básico NO debe crear automáticamente uno avanzado"
+
+        # Volver a Modo Básico, donde sí está "Flujo 1"
+        driver.find_element(By.ID, "btn-flow-mode-basic").click()
+        time.sleep(0.25)
+        assert len(driver.find_elements(By.CSS_SELECTOR, "#flows-sidebar-list [data-select-flow]")) == 1
+
+        # Seleccionar 2 endpoints en modo básico y probar reordenamiento con flechas
+        chks = driver.find_elements(By.CSS_SELECTOR, "[data-flow-req-check]")
+        chks[0].click()
+        time.sleep(0.15)
+        chks = driver.find_elements(By.CSS_SELECTOR, "[data-flow-req-check]")
+        chks[1].click()
+        time.sleep(0.2)
+
+        step_cards = driver.find_elements(By.CSS_SELECTOR, "[data-basic-select-step]")
+        assert len(step_cards) == 2
+        first_step_id_before = step_cards[0].get_attribute("data-basic-select-step")
+        driver.find_element(By.CSS_SELECTOR, "[data-step-down='0']").click()
+        time.sleep(0.2)
+        step_cards_after = driver.find_elements(By.CSS_SELECTOR, "[data-basic-select-step]")
+        assert step_cards_after[1].get_attribute("data-basic-select-step") == first_step_id_before, "Las flechas deben reordenar la secuencia del flujo básico"
+
+        # Agregar una aserción exclusiva del flujo y editar su valor esperado sin perderlo
+        driver.find_element(By.ID, "btn-basic-add-flow-ast").click()
+        time.sleep(0.2)
+        exp_inp = driver.find_element(By.CSS_SELECTOR, "[data-basic-ast-exp='0']")
+        exp_inp.clear()
+        exp_inp.send_keys("201")
+        time.sleep(0.15)
+
+        # Convertir de Básico a Grafo Avanzado (crea "Flujo 1" en Avanzado con etiqueta de avanzado)
+        driver.find_element(By.ID, "btn-convert-basic-to-advanced").click()
+        time.sleep(0.25)
+        assert driver.find_element(By.ID, "flow-canvas-wrap").is_displayed()
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-flow-node")) >= 3
+
+        # Volver a Básico y convertir por segunda vez -> debe crear "Flujo 1 (1)"
+        driver.find_element(By.ID, "btn-flow-mode-basic").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-convert-basic-to-advanced").click()
+        time.sleep(0.25)
+        adv_flow_cards = driver.find_elements(By.CSS_SELECTOR, "#flows-sidebar-list [data-select-flow]")
+        assert len(adv_flow_cards) == 2, "Debe haber 2 flujos avanzados independientes tras convertir dos veces"
+        assert any("Flujo 1 (1)" in c.text for c in adv_flow_cards), "El flujo avanzado con nombre repetido debe llevar sufijo consecutivo Flujo 1 (1)"
+
+        # Probar botón + Variable en Variables Iniciales del Flujo
+        driver.find_element(By.ID, "btn-add-flow-init-var").click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-fvar-key]")) == 1, "El botón + Variable debe agregar una variable inicial al flujo"
+
+        # Probar menú izquierdo independiente (Fijar/Flotante y Ocultar) y menú derecho (Ocultar/Mostrar)
+        driver.find_element(By.ID, "btn-hide-flows-left-sidebar").click()
+        time.sleep(0.2)
+        assert "collapsed" in driver.find_element(By.ID, "flows-left-sidebar").get_attribute("class")
+        driver.find_element(By.ID, "btn-toggle-flows-left-sidebar").click()
+        time.sleep(0.2)
+        assert "collapsed" not in driver.find_element(By.ID, "flows-left-sidebar").get_attribute("class")
+
+        driver.find_element(By.ID, "btn-hide-flows-right-inspector").click()
+        time.sleep(0.2)
+        assert "collapsed" in driver.find_element(By.ID, "flows-right-inspector").get_attribute("class")
+        driver.find_element(By.ID, "btn-toggle-flows-right-inspector").click()
+        time.sleep(0.2)
+        assert "collapsed" not in driver.find_element(By.ID, "flows-right-inspector").get_attribute("class")
+
+        # Probar confirmación al cargar plantilla
+        tpl_select = Select(driver.find_element(By.ID, "flow-template-picker"))
+        tpl_select.select_by_value("retry_resilient")
+        time.sleep(0.2)
+        assert "open" in confirm_modal.get_attribute("class"), "Al cargar una plantilla debe mostrarse confirmación advirtiendo que se reemplazará el progreso"
+        driver.find_element(By.ID, "btn-cancel-confirm-move").click()
+        time.sleep(0.2)
+
+        # Probar ejecución simulada, guardado en Historial y Exportar Reporte Seguro en modal
+        driver.find_element(By.ID, "btn-execute-selected-flow").click()
+        time.sleep(0.4)
+        driver.find_element(By.CSS_SELECTOR, "[data-flow-insp-tab='history']").click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.ID, "insp-cmp-run-a")) == 1, "El historial del flujo debe guardarse y mostrar las ejecuciones realizadas"
+        driver.find_element(By.ID, "btn-export-safe-flow-report").click()
+        time.sleep(0.2)
+        assert "open" in driver.find_element(By.ID, "modal-import").get_attribute("class"), "Exportar reporte seguro debe abrir el modal con el JSON del reporte"
+        driver.find_element(By.ID, "btn-close-import-modal").click()
+        time.sleep(0.2)
+
+        print("  ✓ [E2E FLOWS STUDIO v1.2.0] Secciones independientes, reordenamiento, menús laterales, variables, historial y exportación verificados en Chromium")
 
     finally:
         driver.quit()
 
 
 if __name__ == "__main__":
-    print("=== Ejecutando Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones (ElTransportador v1.0.1) ===")
+    print("=== Ejecutando Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones (ElTransportador v1.2.0) ===")
     run_ui_tests()

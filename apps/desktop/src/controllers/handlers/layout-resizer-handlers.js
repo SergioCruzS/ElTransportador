@@ -1,5 +1,5 @@
 /**
- * Manejadores de Disposición Visual, Redimensionadores, Panel Lateral y Subpestañas — ElTransportador v1.0.1
+ * Manejadores de Disposición Visual, Redimensionadores, Panel Lateral y Subpestañas — ElTransportador v1.2.0
  * Archivo: apps/desktop/src/controllers/handlers/layout-resizer-handlers.js
  */
 import { persistWorkspaceToLocalStorage } from "../../services/storage-sync.js";
@@ -12,7 +12,8 @@ import {
   renderViewLayoutPreferences,
   renderSidebar,
   renderCenterEditor,
-  renderResponsePanel
+  renderResponsePanel,
+  renderFlowsStudioView
 } from "../ui-renderers.js";
 
 export function bindLayoutAndResizerHandlers(state, renderAll) {
@@ -33,6 +34,7 @@ export function bindLayoutAndResizerHandlers(state, renderAll) {
   document.getElementById("btn-cancel-confirm-move")?.addEventListener("click", closeConfirmMoveModal);
   document.getElementById("btn-accept-confirm-move")?.addEventListener("click", acceptConfirmMoveModal);
 
+  // 1. Temporizador flotante para el menú lateral principal (Tester de APIs)
   let floatingHideTimer = null;
   const sidebarEl = document.getElementById("main-sidebar");
 
@@ -48,7 +50,7 @@ export function bindLayoutAndResizerHandlers(state, renderAll) {
     if (!state.sidebarPinned && state.sidebarVisible) {
       floatingHideTimer = setTimeout(() => {
         const activeEl = document.activeElement;
-        if (activeEl && sidebarEl.contains(activeEl) && ["INPUT", "SELECT", "TEXTAREA"].includes(activeEl.tagName)) {
+        if (activeEl && sidebarEl?.contains(activeEl) && ["INPUT", "SELECT", "TEXTAREA"].includes(activeEl.tagName)) {
           return;
         }
         state.sidebarVisible = false;
@@ -86,10 +88,59 @@ export function bindLayoutAndResizerHandlers(state, renderAll) {
     renderViewLayoutPreferences(state);
   });
 
+  // 2. Temporizador flotante para el menú lateral izquierdo de Flows Studio (Totalmente independiente)
+  let flowsLeftFloatingTimer = null;
+  const flowsLeftSidebarEl = document.getElementById("flows-left-sidebar");
+
+  function clearFlowsLeftFloatingTimer() {
+    if (flowsLeftFloatingTimer) {
+      clearTimeout(flowsLeftFloatingTimer);
+      flowsLeftFloatingTimer = null;
+    }
+  }
+
+  function scheduleFlowsLeftAutoHide() {
+    clearFlowsLeftFloatingTimer();
+    if (state.flowsLeftSidebarPinned === false && state.flowsLeftSidebarVisible !== false) {
+      flowsLeftFloatingTimer = setTimeout(() => {
+        const activeEl = document.activeElement;
+        if (activeEl && flowsLeftSidebarEl?.contains(activeEl) && ["INPUT", "SELECT", "TEXTAREA"].includes(activeEl.tagName)) {
+          return;
+        }
+        state.flowsLeftSidebarVisible = false;
+        persistWorkspaceToLocalStorage(state);
+        renderViewLayoutPreferences(state);
+      }, 2200);
+    }
+  }
+
+  flowsLeftSidebarEl?.addEventListener("mouseenter", clearFlowsLeftFloatingTimer);
+  flowsLeftSidebarEl?.addEventListener("focusin", clearFlowsLeftFloatingTimer);
+  flowsLeftSidebarEl?.addEventListener("mouseleave", scheduleFlowsLeftAutoHide);
+  flowsLeftSidebarEl?.addEventListener("focusout", scheduleFlowsLeftAutoHide);
+
+  document.getElementById("btn-pin-flows-left-sidebar")?.addEventListener("click", () => {
+    state.flowsLeftSidebarPinned = state.flowsLeftSidebarPinned === false ? true : false;
+    if (state.flowsLeftSidebarPinned) clearFlowsLeftFloatingTimer();
+    else scheduleFlowsLeftAutoHide();
+    persistWorkspaceToLocalStorage(state);
+    renderViewLayoutPreferences(state);
+  });
+
+  document.getElementById("btn-hide-flows-left-sidebar")?.addEventListener("click", () => {
+    state.flowsLeftSidebarVisible = false;
+    persistWorkspaceToLocalStorage(state);
+    renderViewLayoutPreferences(state);
+  });
+
+  // 3. Redimensionadores independientes (Sidebar principal, Split central, Menú Izquierdo de Flujos y Menú Derecho Inspector de Flujos)
   const sidebarResizer = document.getElementById("sidebar-resizer");
   const splitResizer = document.getElementById("split-resizer");
+  const flowsLeftResizer = document.getElementById("flows-left-sidebar-resizer");
   let isResizingSidebar = false;
   let isResizingSplit = false;
+  let isResizingFlowsLeft = false;
+  let isResizingFlowsRight = false;
 
   sidebarResizer?.addEventListener("mousedown", () => {
     isResizingSidebar = true;
@@ -101,14 +152,39 @@ export function bindLayoutAndResizerHandlers(state, renderAll) {
     splitResizer.classList.add("dragging");
   });
 
+  flowsLeftResizer?.addEventListener("mousedown", () => {
+    isResizingFlowsLeft = true;
+    flowsLeftResizer.classList.add("dragging");
+  });
+
+  window.addEventListener("mousedown", (e) => {
+    const rightResizer = e.target.closest("#flows-right-inspector-resizer");
+    if (rightResizer) {
+      isResizingFlowsRight = true;
+      rightResizer.classList.add("dragging");
+    }
+  });
+
   window.addEventListener("mousemove", (e) => {
     if (isResizingSidebar) {
       state.sidebarWidth = Math.min(560, Math.max(230, e.clientX));
       renderViewLayoutPreferences(state);
       return;
     }
+    if (isResizingFlowsLeft) {
+      state.flowsLeftSidebarWidth = Math.min(540, Math.max(220, e.clientX));
+      renderViewLayoutPreferences(state);
+      return;
+    }
+    if (isResizingFlowsRight) {
+      const newRightW = Math.min(620, Math.max(280, window.innerWidth - e.clientX));
+      state.flowsRightInspectorWidth = newRightW;
+      renderViewLayoutPreferences(state);
+      return;
+    }
     if (isResizingSplit) {
       const splitContainer = document.getElementById("main-split-container");
+      if (!splitContainer) return;
       const rect = splitContainer.getBoundingClientRect();
       if (state.splitVertical) {
         state.splitRatio = Math.min(72, Math.max(28, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
@@ -123,6 +199,16 @@ export function bindLayoutAndResizerHandlers(state, renderAll) {
     if (isResizingSidebar) {
       isResizingSidebar = false;
       sidebarResizer?.classList.remove("dragging");
+      persistWorkspaceToLocalStorage(state);
+    }
+    if (isResizingFlowsLeft) {
+      isResizingFlowsLeft = false;
+      flowsLeftResizer?.classList.remove("dragging");
+      persistWorkspaceToLocalStorage(state);
+    }
+    if (isResizingFlowsRight) {
+      isResizingFlowsRight = false;
+      document.getElementById("flows-right-inspector-resizer")?.classList.remove("dragging");
       persistWorkspaceToLocalStorage(state);
     }
     if (isResizingSplit) {

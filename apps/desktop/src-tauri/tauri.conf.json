@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ElTransportador",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "identifier": "com.eltransportador.desktop",
   "build": {
     "beforeDevCommand": "node ../../scripts/build-all.mjs",
@@ -20,7 +20,8 @@
         "minHeight": 640,
         "resizable": true,
         "fullscreen": false,
-        "decorations": true
+        "decorations": true,
+        "dragDropEnabled": false
       }
     ],
     "security": {

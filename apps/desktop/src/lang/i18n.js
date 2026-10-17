@@ -1,628 +1,66 @@
 /**
- * Módulo Independiente de Internacionalización (I18N) — ElTransportador v1.0.0
- * Ubicación: apps/desktop/src/lang/i18n.js
- * Carga los diccionarios completos de Español (es.json) e Inglés (en.json).
+ * Motor de Internacionalización (I18N) Independiente — ElTransportador v1.0.1
+ * Archivo: apps/desktop/src/lang/i18n.js
  */
-export const LANG_ES = {
-  "app": {
-    "name": "ElTransportador",
-    "version": "v1.0.0",
-    "title": "ElTransportador — IDE Multiplataforma para Pruebas de API (v1.0.0)"
-  },
-  "topbar": {
-    "panel": "Panel",
-    "panelTooltip": "Mostrar u ocultar panel lateral",
-    "searchPlaceholder": "Buscar colecciones, solicitudes, URLs o historial (Ctrl+K)...",
-    "searchScopeAll": "Todo",
-    "searchScopeName": "Nombre",
-    "searchScopeUrl": "URL",
-    "searchScopeMethod": "Método",
-    "searchClear": "Limpiar búsqueda",
-    "envLabel": "Entorno:",
-    "noEnv": "Sin entorno activo",
-    "btnVault": "Entornos y Secretos",
-    "btnVaultTooltip": "Gestionar entornos y bóveda de secretos",
-    "btnFlows": "Estudio de Flujos",
-    "btnFlowsBack": "← Volver al Editor HTTP",
-    "btnFlowsTooltip": "Abrir pantalla de flujos y automatización de endpoints",
-    "btnSync": "Sincronización",
-    "btnSyncTooltip": "Estado de sincronización local / DynamoDB",
-    "btnImportExport": "Importar / Exportar",
-    "themeLight": "Claro",
-    "themeDark": "Oscuro",
-    "themeTooltip": "Alternar entre tema Claro y Oscuro",
-    "langTooltip": "Cambiar idioma de la interfaz (ES / EN)",
-    "settingsTooltip": "Configuración global y políticas de seguridad"
-  },
-  "sidebar": {
-    "title": "Navegador de Proyecto",
-    "pinFixed": "Fijo",
-    "pinFloating": "Flotante",
-    "pinTooltip": "Fijar panel o dejar flotante (se oculta automáticamente al perder el foco)",
-    "hide": "◀ Ocultar",
-    "hideTooltip": "Ocultar panel lateral",
-    "tabCollections": "Colecciones",
-    "tabEnvironments": "Entornos",
-    "tabHistory": "Historial",
-    "newCollection": "+ Colección",
-    "newFolder": "+ Carpeta",
-    "newRequest": "+ Solicitud",
-    "duplicateReq": "⧉ Duplicar",
-    "emptyCollections": "No hay colecciones creadas. Usa «+ Colección» para comenzar.",
-    "emptyFolderDrop": "Arrastra solicitudes aquí o usa «+ Solicitud»",
-    "rootDropZone": "Soltar aquí para mover a la raíz de la colección",
-    "renameCollection": "Renombrar colección",
-    "deleteCollection": "Eliminar colección",
-    "renameFolder": "Renombrar carpeta",
-    "deleteFolder": "Eliminar carpeta",
-    "renameRequest": "Renombrar solicitud",
-    "deleteRequest": "Eliminar solicitud",
-    "dragHandleTooltip": "Arrastra con el mouse para reordenar o mover entre carpetas, raíz y colecciones"
-  },
-  "sync": {
-    "localOnly": "🔒 Solo Local",
-    "pendingPush": "⏳ Pendiente Sync",
-    "synced": "☁ Sincronizado",
-    "conflict": "⚠ Conflicto",
-    "policyLocal": "Mantener en Local",
-    "policyRemote": "Compartido (DynamoDB)",
-    "toggleTooltip": "Cambiar política de almacenamiento: Solo Local o Sincronizable con DynamoDB",
-    "pushNow": "⬆ Enviar cambios a DynamoDB",
-    "pullNow": "⬇ Obtener cambios remotos",
-    "markSyncedSim": "✓ Marcar pendientes como sincronizados",
-    "modalTitle": "Sincronización Híbrida Local-First y Amazon DynamoDB",
-    "modalDesc": "Elige qué colecciones, solicitudes y flujos se mantienen exclusivamente en tu equipo (Solo Local) y cuáles se marcan para almacenamiento compartido en Amazon DynamoDB.",
-    "tableEndpoint": "Endpoint / Región AWS",
-    "tableName": "Tabla DynamoDB",
-    "workspaceId": "ID de Espacio Compartido",
-    "colItem": "Elemento",
-    "colType": "Tipo",
-    "colPolicy": "Destino",
-    "colStatus": "Estado de Sincronización",
-    "colAction": "Acción",
-    "typeCollection": "Colección",
-    "typeRequest": "Solicitud",
-    "typeFlow": "Flujo",
-    "pushSuccess": "✓ Elementos compartidos marcados como sincronizados con DynamoDB",
-    "policyChanged": "✓ Política de almacenamiento actualizada"
-  },
-  "environments": {
-    "newEnvCardTitle": "🌐 Nuevo Entorno de Trabajo",
-    "newEnvPlaceholder": "Ej. Desarrollo, QA, Staging, Producción...",
-    "btnCreate": "+ Crear",
-    "configuredTitle": "Entornos Configurados",
-    "totalSuffix": "total",
-    "emptyEnvs": "No hay entornos configurados. Escribe un nombre arriba y pulsa «+ Crear».",
-    "activeBadge": "ACTIVO",
-    "varsCountSuffix": "variables definidas",
-    "varsOfPrefix": "Variables de",
-    "btnAddVar": "+ Variable",
-    "colOn": "On",
-    "colVariable": "Variable",
-    "colValue": "Valor",
-    "vaultTitle": "🔒 Bóveda de Secretos",
-    "btnAddSecret": "+ Secreto",
-    "vaultHint": "Usa ${secret:nombre} en URLs, headers o autenticación. Los secretos nunca se suben en texto plano:",
-    "colKey": "Clave",
-    "showHide": "Mostrar / Ocultar",
-    "delete": "Eliminar"
-  },
-  "history": {
-    "title": "Historial",
-    "btnClear": "Vaciar",
-    "hint": "Haz clic en cualquier registro para restaurar su solicitud y respuesta:",
-    "empty": "No hay solicitudes ejecutadas en esta sesión.",
-    "deleteEntry": "Eliminar del historial"
-  },
-  "request": {
-    "newTabTooltip": "Abrir nueva pestaña de solicitud",
-    "closeTabTooltip": "Cerrar pestaña",
-    "nameLabel": "Nombre:",
-    "namePlaceholder": "Nombre de la solicitud...",
-    "locationLabel": "Ubicación:",
-    "rootOptionSuffix": "(Raíz de colección)",
-    "urlPlaceholder": "https://api.ejemplo.com/v1/recurso o ${base_url}/endpoint",
-    "btnSend": "Enviar",
-    "btnCancel": "Cancelar",
-    "btnSave": "Guardar",
-    "btnSaveTooltip": "Guardar cambios en la colección (Ctrl+S)",
-    "resolvedUrl": "URL resuelta:",
-    "varsVerified": "✓ Variables verificadas",
-    "unresolvedVarsPrefix": "⚠ Variables sin resolver:",
-    "tabParams": "Params",
-    "tabHeaders": "Headers",
-    "tabAuth": "Authorization",
-    "tabBody": "Body",
-    "tabAssertions": "Pruebas y Aserciones",
-    "tabSettings": "Settings",
-    "paramsTitle": "Parámetros de Consulta (Query Params)",
-    "btnAddParam": "+ Añadir Parámetro",
-    "colDescription": "Descripción",
-    "optionalPlaceholder": "Opcional...",
-    "headersTitle": "Cabeceras HTTP (Headers)",
-    "btnAddHeader": "+ Añadir Header",
-    "colSecret": "Secreto",
-    "authTypeLabel": "Tipo de Autenticación:",
-    "authNone": "Sin Autenticación (None)",
-    "authBearer": "Bearer Token",
-    "authBasic": "Basic Auth (Usuario y Contraseña)",
-    "authApiKey": "API Key (Header o Query Param)",
-    "authBearerLabel": "Token Bearer:",
-    "authBearerPlaceholder": "eyJhbGci... o ${secret:mi_token}",
-    "authUserLabel": "Usuario:",
-    "authUserPlaceholder": "Ingresa el nombre de usuario...",
-    "authPassLabel": "Contraseña:",
-    "authPassPlaceholder": "Ingresa la contraseña o ${secret:clave}...",
-    "authKeyNameLabel": "Nombre de Clave:",
-    "authKeyValLabel": "Valor de API Key:",
-    "authKeyInLabel": "Ubicación de Envío:",
-    "authKeyInHeader": "Enviar en Cabecera HTTP (Header)",
-    "authKeyInQuery": "Enviar en Parámetro de URL (Query)",
-    "authNoneHint": "Esta solicitud se enviará sin cabeceras de autorización adicionales.",
-    "authProtectedHint": "🔒 Las credenciales y referencias a secretos se inyectan en tiempo de ejecución y se redactan automáticamente en el historial.",
-    "bodyModeLabel": "Modo de Cuerpo:",
-    "jsonValid": "✓ JSON válido",
-    "jsonErrorPrefix": "⚠ Error JSON:",
-    "urlencTitle": "Campos Form URL-Encoded",
-    "btnAddField": "+ Añadir Campo",
-    "mpTitle": "Campos Multipart Form-Data",
-    "btnAddPart": "+ Añadir Parte",
-    "btnPrettify": "Formatear JSON",
-    "btnMinify": "Compactar",
-    "editorHint": "Editor JSON / Texto • UTF-8",
-    "bodyPlaceholder": "Escribe o pega el cuerpo de la petición...",
-    "assertionsTitle": "Aserciones Declarativas",
-    "btnAddAssertion": "+ Añadir Aserción",
-    "colTarget": "Objetivo",
-    "colProperty": "Propiedad / JSONPath",
-    "colOperator": "Operador",
-    "colExpected": "Valor Esperado",
-    "extractionsTitle": "Extracción de Variables",
-    "btnAddExtraction": "+ Añadir Extracción",
-    "colDestVar": "Variable Destino",
-    "colJsonPath": "Ruta JSONPath",
-    "colCurrentVal": "Valor Actual",
-    "pendingVal": "(pendiente)",
-    "timeoutLabel": "Timeout (ms):",
-    "redirectsLabel": "Redirecciones HTTP:",
-    "followRedirects": "Seguir saltos (Máx:",
-    "tlsLabel": "Seguridad TLS:",
-    "verifyTls": "Verificar certificados SSL/TLS del servidor",
-    "wirePreviewTitle": "Vista Previa en Vivo de la Solicitud Saliente (Wire Preview)",
-    "wireStatsPrefix": "Params activos:"
-  },
-  "response": {
-    "statusReady": "LISTO",
-    "assertionsDash": "Aserciones: —",
-    "assertionsPrefix": "Pruebas:",
-    "btnSplitView": "Vista",
-    "btnSplitTooltip": "Alternar disposición lado a lado o arriba/abajo (se guarda tu preferencia)",
-    "btnMaximize": "Ampliar",
-    "btnRestore": "Restaurar",
-    "btnMaxTooltip": "Ampliar o restaurar el panel de respuesta",
-    "btnCopy": "Copiar",
-    "btnDownload": "Descargar",
-    "tabPretty": "Pretty",
-    "tabRaw": "Raw",
-    "tabHeaders": "Headers",
-    "tabPreview": "Preview (Sandbox)",
-    "tabCookies": "Cookies",
-    "tabResults": "Resultados Pruebas",
-    "searchPlaceholder": "Buscar o filtrar contenido dentro de la respuesta...",
-    "filterModeLines": "Filtrar líneas",
-    "filterModeAll": "Ver todo",
-    "matchesSuffix": "coincidencias",
-    "linesSuffix": "líneas",
-    "emptyState": "Ingresa una URL y haz clic en ⚡ Enviar (o presiona Ctrl+Enter) para ejecutar la solicitud y visualizar la respuesta completa.",
-    "colRespHeader": "Header de Respuesta",
-    "emptyHeaders": "Sin cabeceras de respuesta",
-    "sandboxNotice": "🛡️ Vista previa renderizada en contenedor aislado (<iframe sandbox=\"\" referrerpolicy=\"no-referrer\">).",
-    "emptyCookies": "Sin cookies en esta respuesta",
-    "emptyAssertions": "No hay aserciones activas para esta solicitud."
-  },
-  "flows": {
-    "studioTitle": "Estudio y Ejecutor de Flujos de API",
-    "studioSubtitle": "Crea flujos independientes, selecciona y ordena los endpoints a validar, y ejecuta pruebas secuenciales.",
-    "myFlows": "Mis Flujos",
-    "btnNewFlow": "+ Nuevo Flujo",
-    "searchFlowsPlaceholder": "Filtrar flujos...",
-    "emptyFlowsList": "No hay flujos creados. Pulsa «+ Nuevo Flujo» para diseñar tu primera secuencia de validación.",
-    "endpointsSelectedSuffix": "pasos configurados",
-    "noActiveFlowTitle": "Ningún flujo seleccionado",
-    "noActiveFlowDesc": "Crea un nuevo flujo en el panel izquierdo para seleccionar qué endpoints de tus colecciones deseas validar en secuencia.",
-    "btnExecuteFlow": "▶ Ejecutar Flujo",
-    "availableEndpointsTitle": "1. Catálogo de Solicitudes Disponibles",
-    "searchEndpointsPlaceholder": "Buscar solicitud por nombre, método o URL...",
-    "btnAddStep": "+ Añadir al flujo",
-    "selectedStepsTitle": "2. Secuencia Ordenada de Validación",
-    "emptyStepsHint": "Marca o añade solicitudes desde el catálogo izquierdo para construir los pasos de este flujo.",
-    "moveUp": "Subir paso",
-    "moveDown": "Bajar paso",
-    "removeStep": "Quitar del flujo",
-    "resultsTitle": "3. Resultados de Ejecución del Flujo",
-    "noRunYet": "Configura los pasos de tu flujo y pulsa «▶ Ejecutar Flujo» para ver el reporte detallado paso a paso.",
-    "flowSuccess": "✓ FLUJO EXITOSO",
-    "flowFailed": "✗ FALLOS DETECTADOS",
-    "stepPrefix": "Paso",
-    "summaryExecuted": "Endpoints ejecutados",
-    "summaryAssertions": "Aserciones cumplidas",
-    "summaryDuration": "Tiempo total"
-  },
-  "modals": {
-    "btnCancel": "Cancelar",
-    "btnConfirm": "Guardar cambios",
-    "btnAcceptMove": "Confirmar cambio",
-    "btnClose": "Cerrar ✕",
-    "moveTitle": "Confirmar reubicación de solicitud",
-    "moveBetweenFolders": "¿Confirmas mover la solicitud «{req}» hacia {dest}?",
-    "moveReorder": "¿Confirmas mover la solicitud «{req}» junto a «{target}» en {dest}?",
-    "importExportTitle": "Importar / Exportar Colecciones (.etp.json / OpenAPI 3.0) y cURL",
-    "btnExportEtp": "📦 Ver JSON de Colección (.etp.json)",
-    "btnValidateImport": "✓ Validar e Importar JSON",
-    "btnCopyContent": "📋 Copiar Contenido",
-    "btnSaveFileAs": "💾 Guardar Archivo Como...",
-    "importPlaceholder": "Pega aquí una colección .etp.json o una especificación OpenAPI 3.0 para importarla...",
-    "settingsTitle": "Configuración Global y Políticas de Seguridad (com.eltransportador.desktop)"
-  },
-  "toasts": {
-    "copiedResp": "✓ Respuesta copiada al portapapeles",
-    "copiedContent": "✓ Contenido copiado al portapapeles",
-    "noRespToCopy": "⚠ No hay contenido de respuesta para copiar",
-    "noRespToDownload": "⚠ Ejecuta primero una solicitud para descargar su respuesta",
-    "fileSaved": "✓ Archivo guardado correctamente como «{name}»",
-    "savedReq": "✓ Solicitud guardada en la colección",
-    "duplicatedReq": "✓ Solicitud duplicada",
-    "createdCol": "✓ Colección «{name}» creada",
-    "renamedCol": "✓ Nombre de colección actualizado",
-    "createdFolder": "✓ Carpeta «{name}» creada",
-    "renamedFolder": "✓ Carpeta renombrada",
-    "renamedReq": "✓ Solicitud renombrada",
-    "movedReq": "✓ Solicitud movida a {dest}",
-    "createdEnv": "✓ Entorno «{name}» creado y activado",
-    "renamedEnv": "✓ Entorno renombrado a «{name}»",
-    "createdFlow": "✓ Flujo «{name}» creado",
-    "selectAtLeastOneStep": "⚠ Añade al menos un endpoint al flujo antes de ejecutarlo",
-    "importedOk": "✓ Colección importada correctamente"
-  },
-  "defaults": {
-    "firstCollectionName": "Mi Colección Principal",
-    "firstRequestName": "Nueva Solicitud HTTP"
-  }
-};
+import { LANG_ES } from "./es.js";
+import { LANG_EN } from "./en.js";
 
-export const LANG_EN = {
-  "app": {
-    "name": "ElTransportador",
-    "version": "v1.0.0",
-    "title": "ElTransportador — Cross-Platform API Testing IDE (v1.0.0)"
-  },
-  "topbar": {
-    "panel": "Sidebar",
-    "panelTooltip": "Show or hide left sidebar",
-    "searchPlaceholder": "Search collections, requests, URLs, or history (Ctrl+K)...",
-    "searchScopeAll": "All",
-    "searchScopeName": "Name",
-    "searchScopeUrl": "URL",
-    "searchScopeMethod": "Method",
-    "searchClear": "Clear search",
-    "envLabel": "Environment:",
-    "noEnv": "No active environment",
-    "btnVault": "Envs & Secrets",
-    "btnVaultTooltip": "Manage environments and secret vault",
-    "btnFlows": "Flows Studio",
-    "btnFlowsBack": "← Back to HTTP Editor",
-    "btnFlowsTooltip": "Open endpoint flows studio and runner",
-    "btnSync": "Sync",
-    "btnSyncTooltip": "Local / DynamoDB synchronization status",
-    "btnImportExport": "Import / Export",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "themeTooltip": "Toggle between Light and Dark theme",
-    "langTooltip": "Switch interface language (ES / EN)",
-    "settingsTooltip": "Global settings and security policies"
-  },
-  "sidebar": {
-    "title": "Project Navigator",
-    "pinFixed": "Pinned",
-    "pinFloating": "Floating",
-    "pinTooltip": "Pin sidebar or leave floating (auto-hides when losing focus)",
-    "hide": "◀ Hide",
-    "hideTooltip": "Hide sidebar",
-    "tabCollections": "Collections",
-    "tabEnvironments": "Environments",
-    "tabHistory": "History",
-    "newCollection": "+ Collection",
-    "newFolder": "+ Folder",
-    "newRequest": "+ Request",
-    "duplicateReq": "⧉ Duplicate",
-    "emptyCollections": "No collections yet. Click '+ Collection' to start.",
-    "emptyFolderDrop": "Drag requests here or click '+ Request'",
-    "rootDropZone": "Drop here to move to collection root",
-    "renameCollection": "Rename collection",
-    "deleteCollection": "Delete collection",
-    "renameFolder": "Rename folder",
-    "deleteFolder": "Delete folder",
-    "renameRequest": "Rename request",
-    "deleteRequest": "Delete request",
-    "dragHandleTooltip": "Drag with mouse to reorder or move across folders, root, and collections"
-  },
-  "sync": {
-    "localOnly": "🔒 Local Only",
-    "pendingPush": "⏳ Pending Sync",
-    "synced": "☁ Synced",
-    "conflict": "⚠ Conflict",
-    "policyLocal": "Keep Local Only",
-    "policyRemote": "Shared (DynamoDB)",
-    "toggleTooltip": "Switch storage policy: Local Only or Shared with DynamoDB",
-    "pushNow": "⬆ Push changes to DynamoDB",
-    "pullNow": "⬇ Pull remote changes",
-    "markSyncedSim": "✓ Mark pending items as synced",
-    "modalTitle": "Hybrid Local-First & Amazon DynamoDB Synchronization",
-    "modalDesc": "Choose which collections, requests, and flows remain strictly on your device (Local Only) and which are shared with Amazon DynamoDB.",
-    "tableEndpoint": "AWS Endpoint / Region",
-    "tableName": "DynamoDB Table",
-    "workspaceId": "Shared Workspace ID",
-    "colItem": "Item",
-    "colType": "Type",
-    "colPolicy": "Target",
-    "colStatus": "Sync Status",
-    "colAction": "Action",
-    "typeCollection": "Collection",
-    "typeRequest": "Request",
-    "typeFlow": "Flow",
-    "pushSuccess": "✓ Shared items marked as synchronized with DynamoDB",
-    "policyChanged": "✓ Storage policy updated"
-  },
-  "environments": {
-    "newEnvCardTitle": "🌐 New Workspace Environment",
-    "newEnvPlaceholder": "E.g. Development, QA, Staging, Production...",
-    "btnCreate": "+ Create",
-    "configuredTitle": "Configured Environments",
-    "totalSuffix": "total",
-    "emptyEnvs": "No environments created. Enter a name above and click '+ Create'.",
-    "activeBadge": "ACTIVE",
-    "varsCountSuffix": "defined variables",
-    "varsOfPrefix": "Variables of",
-    "btnAddVar": "+ Variable",
-    "colOn": "On",
-    "colVariable": "Variable",
-    "colValue": "Value",
-    "vaultTitle": "🔒 Secret Vault",
-    "btnAddSecret": "+ Secret",
-    "vaultHint": "Reference with ${secret:name} in URLs, headers, or auth. Secrets are never uploaded in plaintext:",
-    "colKey": "Key",
-    "showHide": "Show / Hide",
-    "delete": "Delete"
-  },
-  "history": {
-    "title": "History",
-    "btnClear": "Clear",
-    "hint": "Click any entry to restore its request and response:",
-    "empty": "No requests recorded in this session.",
-    "deleteEntry": "Remove from history"
-  },
-  "request": {
-    "newTabTooltip": "Open new request tab",
-    "closeTabTooltip": "Close tab",
-    "nameLabel": "Name:",
-    "namePlaceholder": "Request name...",
-    "locationLabel": "Location:",
-    "rootOptionSuffix": "(Collection Root)",
-    "urlPlaceholder": "https://api.example.com/v1/resource or ${base_url}/endpoint",
-    "btnSend": "Send",
-    "btnCancel": "Cancel",
-    "btnSave": "Save",
-    "btnSaveTooltip": "Save changes to collection (Ctrl+S)",
-    "resolvedUrl": "Resolved URL:",
-    "varsVerified": "✓ Variables verified",
-    "unresolvedVarsPrefix": "⚠ Unresolved variables:",
-    "tabParams": "Params",
-    "tabHeaders": "Headers",
-    "tabAuth": "Authorization",
-    "tabBody": "Body",
-    "tabAssertions": "Tests & Assertions",
-    "tabSettings": "Settings",
-    "paramsTitle": "Query Parameters",
-    "btnAddParam": "+ Add Parameter",
-    "colDescription": "Description",
-    "optionalPlaceholder": "Optional...",
-    "headersTitle": "HTTP Headers",
-    "btnAddHeader": "+ Add Header",
-    "colSecret": "Secret",
-    "authTypeLabel": "Authentication Type:",
-    "authNone": "No Authentication (None)",
-    "authBearer": "Bearer Token",
-    "authBasic": "Basic Auth (Username & Password)",
-    "authApiKey": "API Key (Header or Query Param)",
-    "authBearerLabel": "Bearer Token:",
-    "authBearerPlaceholder": "eyJhbGci... or ${secret:my_token}",
-    "authUserLabel": "Username:",
-    "authUserPlaceholder": "Enter username...",
-    "authPassLabel": "Password:",
-    "authPassPlaceholder": "Enter password or ${secret:key}...",
-    "authKeyNameLabel": "Key Name:",
-    "authKeyValLabel": "API Key Value:",
-    "authKeyInLabel": "Send In:",
-    "authKeyInHeader": "HTTP Header",
-    "authKeyInQuery": "URL Query Parameter",
-    "authNoneHint": "This request will be sent without additional authorization headers.",
-    "authProtectedHint": "🔒 Credentials and secret references are injected at runtime and automatically redacted in history.",
-    "bodyModeLabel": "Body Mode:",
-    "jsonValid": "✓ Valid JSON",
-    "jsonErrorPrefix": "⚠ JSON Error:",
-    "urlencTitle": "Form URL-Encoded Fields",
-    "btnAddField": "+ Add Field",
-    "mpTitle": "Multipart Form-Data Fields",
-    "btnAddPart": "+ Add Part",
-    "btnPrettify": "Format JSON",
-    "btnMinify": "Minify",
-    "editorHint": "JSON / Text Editor • UTF-8",
-    "bodyPlaceholder": "Type or paste request body...",
-    "assertionsTitle": "Declarative Assertions",
-    "btnAddAssertion": "+ Add Assertion",
-    "colTarget": "Target",
-    "colProperty": "Property / JSONPath",
-    "colOperator": "Operator",
-    "colExpected": "Expected Value",
-    "extractionsTitle": "Variable Extractions",
-    "btnAddExtraction": "+ Add Extraction",
-    "colDestVar": "Target Variable",
-    "colJsonPath": "JSONPath Route",
-    "colCurrentVal": "Current Value",
-    "pendingVal": "(pending)",
-    "timeoutLabel": "Timeout (ms):",
-    "redirectsLabel": "HTTP Redirects:",
-    "followRedirects": "Follow redirects (Max:",
-    "tlsLabel": "TLS Security:",
-    "verifyTls": "Verify server SSL/TLS certificates",
-    "wirePreviewTitle": "Live Outgoing Request Preview (Wire Preview)",
-    "wireStatsPrefix": "Active params:"
-  },
-  "response": {
-    "statusReady": "READY",
-    "assertionsDash": "Assertions: —",
-    "assertionsPrefix": "Tests:",
-    "btnSplitView": "Layout",
-    "btnSplitTooltip": "Toggle side-by-side or top-bottom view (preference is saved)",
-    "btnMaximize": "Expand",
-    "btnRestore": "Restore",
-    "btnMaxTooltip": "Expand or restore response panel",
-    "btnCopy": "Copy",
-    "btnDownload": "Download",
-    "tabPretty": "Pretty",
-    "tabRaw": "Raw",
-    "tabHeaders": "Headers",
-    "tabPreview": "Preview (Sandbox)",
-    "tabCookies": "Cookies",
-    "tabResults": "Test Results",
-    "searchPlaceholder": "Search or filter content inside the response...",
-    "filterModeLines": "Filter lines",
-    "filterModeAll": "Show all",
-    "matchesSuffix": "matches",
-    "linesSuffix": "lines",
-    "emptyState": "Enter a URL and click ⚡ Send (or press Ctrl+Enter) to execute the request and inspect the full response.",
-    "colRespHeader": "Response Header",
-    "emptyHeaders": "No response headers",
-    "sandboxNotice": "🛡️ Preview rendered inside an isolated container (<iframe sandbox=\"\" referrerpolicy=\"no-referrer\">).",
-    "emptyCookies": "No cookies in this response",
-    "emptyAssertions": "No active assertions for this request."
-  },
-  "flows": {
-    "studioTitle": "API Flows Studio & Runner",
-    "studioSubtitle": "Create independent flows, select and reorder endpoints to validate, and run sequential tests.",
-    "myFlows": "My Flows",
-    "btnNewFlow": "+ New Flow",
-    "searchFlowsPlaceholder": "Filter flows...",
-    "emptyFlowsList": "No flows created yet. Click '+ New Flow' to design your first validation sequence.",
-    "endpointsSelectedSuffix": "configured steps",
-    "noActiveFlowTitle": "No flow selected",
-    "noActiveFlowDesc": "Create a new flow on the left panel to select which endpoints from your collections to validate in sequence.",
-    "btnExecuteFlow": "▶ Run Flow",
-    "availableEndpointsTitle": "1. Available Requests Catalog",
-    "searchEndpointsPlaceholder": "Search request by name, method, or URL...",
-    "btnAddStep": "+ Add to flow",
-    "selectedStepsTitle": "2. Ordered Validation Sequence",
-    "emptyStepsHint": "Check or add requests from the left catalog to build the steps for this flow.",
-    "moveUp": "Move step up",
-    "moveDown": "Move step down",
-    "removeStep": "Remove from flow",
-    "resultsTitle": "3. Flow Execution Results",
-    "noRunYet": "Configure your flow steps and click '▶ Run Flow' to view the detailed step-by-step report.",
-    "flowSuccess": "✓ FLOW PASSED",
-    "flowFailed": "✗ FAILURES DETECTED",
-    "stepPrefix": "Step",
-    "summaryExecuted": "Executed endpoints",
-    "summaryAssertions": "Passed assertions",
-    "summaryDuration": "Total duration"
-  },
-  "modals": {
-    "btnCancel": "Cancel",
-    "btnConfirm": "Save changes",
-    "btnAcceptMove": "Confirm move",
-    "btnClose": "Close ✕",
-    "moveTitle": "Confirm request relocation",
-    "moveBetweenFolders": "Do you confirm moving request \"{req}\" to {dest}?",
-    "moveReorder": "Do you confirm moving request \"{req}\" next to \"{target}\" in {dest}?",
-    "importExportTitle": "Import / Export Collections (.etp.json / OpenAPI 3.0) & cURL",
-    "btnExportEtp": "📦 View Collection JSON (.etp.json)",
-    "btnValidateImport": "✓ Validate & Import JSON",
-    "btnCopyContent": "📋 Copy Content",
-    "btnSaveFileAs": "💾 Save File As...",
-    "importPlaceholder": "Paste an .etp.json collection or OpenAPI 3.0 specification here to import...",
-    "settingsTitle": "Global Settings & Security Policies (com.eltransportador.desktop)"
-  },
-  "toasts": {
-    "copiedResp": "✓ Response copied to clipboard",
-    "copiedContent": "✓ Content copied to clipboard",
-    "noRespToCopy": "⚠ No response content to copy",
-    "noRespToDownload": "⚠ Run a request first to download its response",
-    "fileSaved": "✓ File saved as \"{name}\"",
-    "savedReq": "✓ Request saved to collection",
-    "duplicatedReq": "✓ Request duplicated",
-    "createdCol": "✓ Collection \"{name}\" created",
-    "renamedCol": "✓ Collection name updated",
-    "createdFolder": "✓ Folder \"{name}\" created",
-    "renamedFolder": "✓ Folder renamed",
-    "renamedReq": "✓ Request renamed",
-    "movedReq": "✓ Request moved to {dest}",
-    "createdEnv": "✓ Environment \"{name}\" created and activated",
-    "renamedEnv": "✓ Environment renamed to \"{name}\"",
-    "createdFlow": "✓ Flow \"{name}\" created",
-    "selectAtLeastOneStep": "⚠ Add at least one endpoint to the flow before running it",
-    "importedOk": "✓ Collection imported"
-  },
-  "defaults": {
-    "firstCollectionName": "My Main Collection",
-    "firstRequestName": "New HTTP Request"
-  }
-};
+export { LANG_ES, LANG_EN };
 
 export const DICTIONARIES = {
   es: LANG_ES,
   en: LANG_EN
 };
 
+/**
+ * Obtiene una cadena traducida por ruta de clave (ej. "topbar.btnSend") e interpola variables {nombre}.
+ */
 export function translate(lang, keyPath, vars = {}) {
   const dict = DICTIONARIES[lang] || DICTIONARIES.es;
-  const parts = String(keyPath).split('.');
+  const parts = String(keyPath).split(".");
   let cur = dict;
   for (const p of parts) {
-    if (cur && typeof cur === 'object' && p in cur) {
+    if (cur && typeof cur === "object" && p in cur) {
       cur = cur[p];
     } else {
       cur = null;
       break;
     }
   }
-  if (typeof cur !== 'string') {
+  if (typeof cur !== "string") {
     let fallback = DICTIONARIES.es;
     for (const p of parts) {
-      if (fallback && typeof fallback === 'object' && p in fallback) {
+      if (fallback && typeof fallback === "object" && p in fallback) {
         fallback = fallback[p];
       } else {
         return keyPath;
       }
     }
-    cur = typeof fallback === 'string' ? fallback : keyPath;
+    cur = typeof fallback === "string" ? fallback : keyPath;
   }
   return cur.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : `{${k}}`));
 }
 
+/**
+ * Aplica traducciones automáticamente a todos los elementos del DOM con atributo [data-i18n],
+ * [data-i18n-placeholder] y [data-i18n-title].
+ */
 export function applyDomTranslations(lang, rootEl = document) {
-  rootEl.querySelectorAll('[data-i18n]').forEach((el) => {
-    const key = el.getAttribute('data-i18n');
+  if (!rootEl || typeof rootEl.querySelectorAll !== "function") return;
+  rootEl.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
     if (key) el.textContent = translate(lang, key);
   });
-  rootEl.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (key) el.setAttribute('placeholder', translate(lang, key));
+  rootEl.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (key) el.setAttribute("placeholder", translate(lang, key));
   });
-  rootEl.querySelectorAll('[data-i18n-title]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-title');
-    if (key) el.setAttribute('title', translate(lang, key));
+  rootEl.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    if (key) el.setAttribute("title", translate(lang, key));
   });
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.ETP_I18N = { LANG_ES, LANG_EN, DICTIONARIES, translate, applyDomTranslations };
 }

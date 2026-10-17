@@ -69,7 +69,7 @@ const distStorage = path.join(ROOT, "apps", "desktop", "dist", "services", "stor
 if (fs.existsSync(distController)) {
   const dummyEl = {
     style: {},
-    classList: { add() {}, remove() {}, toggle() {} },
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     addEventListener() {},
     querySelectorAll() { return []; },
     setAttribute() {},

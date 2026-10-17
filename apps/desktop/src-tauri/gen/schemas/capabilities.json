@@ -1,14 +1,1 @@
-{
-    "default": {
-        "identifier": "default",
-        "description": "Capacidad de privilegio mínimo para la ventana principal de ElTransportador. No expone shell ni filesystem genérico.",
-        "local": true,
-        "windows": [
-            "main"
-        ],
-        "permissions": [
-            "core:default",
-            "core:window:allow-set-title"
-        ]
-    }
-}
+{"default":{"identifier":"default","description":"Capacidad de privilegio mínimo para la ventana principal de ElTransportador. No expone shell ni filesystem genérico.","local":true,"windows":["main"],"permissions":["core:default","core:window:allow-set-title"]}}

@@ -1,0 +1,160 @@
+/**
+ * Evaluador Declarativo de Aserciones y Extractor JSONPath — ElTransportador v1.0.1
+ * Archivo: scripts/core-engine/assertions.mjs
+ */
+export class AssertionEvaluator {
+  static getJsonPath(obj, pathStr) {
+    if (!obj || typeof obj !== 'object' || !pathStr) return undefined;
+    const segments = String(pathStr)
+      .split('.')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    let cur = obj;
+    for (const seg of segments) {
+      if (cur === null || cur === undefined) return undefined;
+      if (Array.isArray(cur)) {
+        const idx = Number(seg);
+        if (Number.isNaN(idx)) return undefined;
+        cur = cur[idx];
+      } else if (typeof cur === 'object' && Object.prototype.hasOwnProperty.call(cur, seg)) {
+        cur = cur[seg];
+      } else {
+        return undefined;
+      }
+    }
+    return cur;
+  }
+
+  static detectType(val) {
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (Array.isArray(val)) return 'array';
+    return typeof val;
+  }
+
+  static evaluateAll(rules = [], response) {
+    let parsedJson = null;
+    try {
+      parsedJson = JSON.parse(response.body);
+    } catch {
+      parsedJson = null;
+    }
+
+    const results = [];
+    for (const rule of rules) {
+      if (!rule || !rule.enabled) continue;
+      let actualVal = undefined;
+      let actualType = 'undefined';
+
+      if (rule.target === 'status') {
+        actualVal = response.status;
+        actualType = 'number';
+      } else if (rule.target === 'duration_ms') {
+        actualVal = response.durationMs;
+        actualType = 'number';
+      } else if (rule.target === 'body_text') {
+        actualVal = response.body;
+        actualType = 'string';
+      } else if (rule.target === 'header') {
+        const targetHeader = String(rule.property || '').toLowerCase();
+        const entry = Object.entries(response.headers || {}).find(
+          ([k]) => k.toLowerCase() === targetHeader
+        );
+        if (entry) {
+          actualVal = entry[1];
+          actualType = 'string';
+        }
+      } else if (rule.target === 'json_path') {
+        if (parsedJson !== null) {
+          actualVal = AssertionEvaluator.getJsonPath(parsedJson, rule.property || '');
+          actualType = AssertionEvaluator.detectType(actualVal);
+        } else {
+          actualType = 'invalid_json';
+        }
+      }
+
+      const actualStr =
+        actualVal === undefined
+          ? '<undefined>'
+          : typeof actualVal === 'object'
+          ? JSON.stringify(actualVal)
+          : String(actualVal);
+
+      let passed = false;
+      const expectedStr = String(rule.expected ?? '');
+
+      switch (rule.operator) {
+        case 'exists':
+          passed = actualVal !== undefined && actualVal !== null;
+          break;
+        case 'not_exists':
+          passed = actualVal === undefined || actualVal === null;
+          break;
+        case 'equals':
+          passed = actualStr === expectedStr;
+          break;
+        case 'not_equals':
+          passed = actualStr !== expectedStr;
+          break;
+        case 'contains':
+          passed = actualVal !== undefined && actualStr.includes(expectedStr);
+          break;
+        case 'less_than':
+          passed = Number(actualVal) < Number(expectedStr);
+          break;
+        case 'greater_than':
+          passed = Number(actualVal) > Number(expectedStr);
+          break;
+        case 'is_type':
+          passed = actualType.toLowerCase() === expectedStr.toLowerCase();
+          break;
+        default:
+          passed = false;
+      }
+
+      results.push({
+        ruleId: rule.id,
+        passed,
+        target: rule.target,
+        property: rule.property,
+        operator: rule.operator,
+        expected: expectedStr,
+        actual: actualStr,
+        message: passed
+          ? `OK: ${rule.target}${rule.property ? ` (${rule.property})` : ''} ${rule.operator} ${expectedStr}`
+          : `Fallo en ${rule.target}${rule.property ? ` (${rule.property})` : ''}: esperado [${rule.operator} '${expectedStr}'], obtenido '${actualStr}'`,
+      });
+    }
+
+    return results;
+  }
+
+  static extractVariables(extractions = [], response) {
+    const extracted = {};
+    let parsedJson = null;
+    try {
+      parsedJson = JSON.parse(response.body);
+    } catch {
+      parsedJson = null;
+    }
+
+    for (const ext of extractions) {
+      if (!ext || !ext.enabled || !ext.variableName) continue;
+      if (ext.source === 'status') {
+        extracted[ext.variableName] = String(response.status);
+      } else if (ext.source === 'header') {
+        const entry = Object.entries(response.headers || {}).find(
+          ([k]) => k.toLowerCase() === String(ext.path || '').toLowerCase()
+        );
+        if (entry) extracted[ext.variableName] = String(entry[1]);
+      } else if (ext.source === 'json_path' && parsedJson !== null) {
+        const val = AssertionEvaluator.getJsonPath(parsedJson, ext.path || '');
+        if (val !== undefined && val !== null) {
+          extracted[ext.variableName] = typeof val === 'object' ? JSON.stringify(val) : String(val);
+        }
+      }
+    }
+    return extracted;
+  }
+}
+

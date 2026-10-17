@@ -10,7 +10,7 @@ use std::process::ExitCode;
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 || args.contains(&"--help".to_string()) {
-        println!("ElTransportador CLI v1.0.0 (Esquema v{})", CURRENT_SCHEMA_VERSION);
+        println!("ElTransportador CLI v1.0.1 (Esquema v{})", CURRENT_SCHEMA_VERSION);
         println!("Uso: eltransportador-cli run <ruta-coleccion.etp.json> [--env <nombre>] [--report <archivo.json>]");
         return ExitCode::SUCCESS;
     }

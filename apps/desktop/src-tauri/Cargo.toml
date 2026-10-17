@@ -1,6 +1,6 @@
 [package]
 name = "eltransportador-desktop"
-version = "1.0.0"
+version = "1.0.1"
 description = "ElTransportador — IDE multiplataforma, ligero y seguro para pruebas de APIs HTTP"
 authors = ["Equipo de Ingeniería ElTransportador"]
 license = "MIT"

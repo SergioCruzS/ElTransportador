@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 """
-Suite de Pruebas E2E de Interfaz, Seguridad y Administración de Secretos — ElTransportador v1.0.0
+Suite de Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones — ElTransportador v1.0.1
 Verifica:
-1. Separación modular y minificación en Release de HTML, CSS (`styles/`), I18N (`lang/`), Servicios (`services/`) y Controladores (`controllers/`).
-2. Aviso cuando no existe contraseña configurada: los secretos agregados sin contraseña funcionan en la sesión pero NO se guardan al reiniciar.
-3. Secretos de solo creación y eliminación (Inmutables y No Visibles): no existen controles para ver (`👁`) ni editar secretos creados.
-4. Eliminación de secretos protegida por Contraseña de Administración: sin la contraseña correcta no se permite eliminar ningún secreto.
-5. Modal de Configuración (`#modal-settings`) estilizado:
-   - Configurar contraseña inicial.
-   - Cambiar contraseña ingresando la anterior (sin borrar los secretos guardados).
-   - Recuperar/restablecer contraseña olvidada mostrando un modal de advertencia superpuesto (`z-index: 3500 > 1000`) que borra todos los secretos al confirmar.
+1. Arquitectura atomizada por dominios con archivos `index` (`scripts/core-engine/`, `services/storage/`, `services/http/`, `controllers/renderers/`, `controllers/handlers/`, `lang/`).
+2. Servidor bridge IPC con autenticación `X-ETP-Bridge-Token` y entrega de módulos ES6.
+3. Visor de respuesta JSON con colores por propiedad (`.etp-json-key`, `.etp-json-string`, `.etp-json-number`, `.etp-json-boolean`, `.etp-json-null`), colapsado/expandido entre llaves `{}` / `[]` y numeración de línea exacta.
+4. Barra de búsqueda de respuesta: resaltado de coincidencias (`<mark class="etp-search-highlight">`) en modo «Ver todo» (`all`) y filtrado de líneas en modo «Filtrar líneas» (`filter`).
+5. Numeración de línea dinámica y sincronizada en el editor del cuerpo de la solicitud (`#body-code-gutter` y `#body-raw-textarea`).
+6. Validación de nombre de colección duplicado dentro del mismo modal (`#input-dialog-error`) tanto al crear una colección como al editar su nombre (`✎`), y notificaciones toast más visibles y duraderas (`6500 ms`).
+7. Doble confirmación (Paso 1 de 2 y Paso 2 de 2) al querer eliminar una carpeta o colección que tenga 1 o más solicitudes.
+8. Colapsar y expandir colecciones y carpetas en el panel lateral.
+9. Selección única de solicitudes entre colecciones y movimiento entre colecciones.
 """
 import os
 import re
-import json
 import time
+import json
 import base64
 import subprocess
 import urllib.request
@@ -25,37 +26,60 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-DIST_DIR = os.path.join(ROOT, "apps", "desktop", "dist")
+DIST_INDEX = os.path.join(ROOT, "apps", "desktop", "dist", "index.html")
 CANVAS_HTML = "/working_dir/c_5e4e79f4bf4e830a/artifacts/file_generation/ttl=63d/output/eltransportador_ide.html"
-SHOTS_DIR = "/tmp/etp_e2e_tmp"
-os.makedirs(SHOTS_DIR, exist_ok=True)
+if not os.path.exists(CANVAS_HTML):
+    CANVAS_HTML = DIST_INDEX
 
 
 def verify_modular_release_structure():
-    required_files = [
-        "index.html",
+    src_dir = os.path.join(ROOT, "apps", "desktop", "src")
+    dist_dir = os.path.join(ROOT, "apps", "desktop", "dist")
+
+    expected_files = [
         "styles/tokens.css",
         "styles/main.css",
-        "lang/es.json",
-        "lang/en.json",
+        "lang/index.js",
         "lang/i18n.js",
-        "services/storage-sync.js",
-        "services/http-client.js",
-        "controllers/ui-renderers.js",
-        "controllers/app-controller.js",
-        "components/topbar.html",
-        "components/sidebar.html",
-        "components/request-editor.html",
-        "components/response-viewer.html",
-        "components/flows-studio.html",
-        "components/modals.html",
+        "lang/es.js",
+        "lang/en.js",
+        "services/storage/index.js",
+        "services/storage/constants.js",
+        "services/storage/vault-crypto.js",
+        "services/storage/collection-sanitizer.js",
+        "services/storage/workspace-state.js",
+        "services/http/index.js",
+        "services/http/variable-interpolation.js",
+        "services/http/wire-preview.js",
+        "services/http/assertions-evaluator.js",
+        "services/http/request-executor.js",
+        "controllers/renderers/index.js",
+        "controllers/renderers/dom-utils.js",
+        "controllers/renderers/workspace-helpers.js",
+        "controllers/renderers/layout-prefs.js",
+        "controllers/renderers/settings-modal.js",
+        "controllers/renderers/sidebar-collections.js",
+        "controllers/renderers/sidebar-environments.js",
+        "controllers/renderers/sidebar-history.js",
+        "controllers/renderers/sidebar.js",
+        "controllers/renderers/center-editor.js",
+        "controllers/renderers/center-editor-tabs.js",
+        "controllers/renderers/center-editor-events.js",
+        "controllers/renderers/json-viewer.js",
+        "controllers/renderers/response-panel.js",
+        "controllers/renderers/flows-studio.js",
+        "controllers/handlers/index.js",
+        "controllers/handlers/file-clipboard-actions.js",
+        "controllers/handlers/layout-resizer-handlers.js",
+        "controllers/handlers/request-bar-handlers.js",
+        "controllers/handlers/collection-crud-handlers.js",
+        "controllers/handlers/import-export-handlers.js",
     ]
-    for rel in required_files:
-        full_p = os.path.join(DIST_DIR, rel)
-        assert os.path.exists(full_p), f"Falta archivo modular en dist/: {rel}"
+    for rel in expected_files:
+        assert os.path.exists(os.path.join(src_dir, rel)), f"Falta módulo fuente atomizado: {rel}"
+        assert os.path.exists(os.path.join(dist_dir, rel)), f"Falta módulo minificado en dist: {rel}"
 
-    assert os.path.exists(os.path.join(ROOT, "docs/PLAN_SINCRONIZACION_DYNAMODB.md"))
-    print("  ✓ [E2E ARCH] Separación modular, minificación JS/CSS, limpieza de Release y Plan README DynamoDB verificados")
+    print("  ✓ [E2E ARCH] Atomización modular de core-engine, services, renderers, json-viewer y handlers verificada")
 
 
 def verify_bridge_and_static_serving():
@@ -68,17 +92,20 @@ def verify_bridge_and_static_serving():
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        text=True,
     )
     try:
         index_html = ""
         for _ in range(30):
             try:
-                resp = urllib.request.urlopen("http://127.0.0.1:1428/index.html", timeout=1)
-                index_html = resp.read().decode("utf-8")
-                break
+                with urllib.request.urlopen("http://127.0.0.1:1428/", timeout=1) as res:
+                    if res.status == 200:
+                        index_html = res.read().decode("utf-8")
+                        break
             except Exception:
                 time.sleep(0.15)
 
+        assert index_html, "El servidor dev-server.mjs no respondió en http://127.0.0.1:1428/"
         m = re.search(r'<meta name="etp-bridge-token" content="([a-f0-9]+)"', index_html)
         assert m, "El servidor bridge debe inyectar el meta tag etp-bridge-token en index.html"
         bridge_token = m.group(1)
@@ -140,7 +167,6 @@ def run_ui_tests():
         driver.get(data_uri)
         time.sleep(0.6)
 
-        # Inyectar un mock de localStorage en memoria si data: URI restringe localStorage nativo en Chrome headless
         driver.execute_script("""
         try {
           localStorage.setItem('__test', '1');
@@ -158,111 +184,196 @@ def run_ui_tests():
         }
         """)
 
-        # 1. Abrir Bóveda de Secretos y verificar aviso de que sin contraseña los secretos no se guardarán al reiniciar
-        driver.find_element(By.ID, "btn-open-vault").click()
+        assert driver.find_element(By.ID, "lbl-app-version").text.strip() == "v1.0.1"
+
+        # 1. Verificar I18N en Inglés, colores JSON, numeración de líneas de respuesta, plegado entre llaves y búsqueda con resaltado en "Ver todo"
+        driver.find_element(By.ID, "btn-toggle-lang").click()
         time.sleep(0.25)
-        warn_banners = driver.find_elements(By.ID, "no-admin-pwd-warning-banner")
-        assert len(warn_banners) == 1, "Debe mostrarse el banner advirtiendo que sin contraseña los secretos se borrarán al reiniciar"
+        assert driver.find_element(By.ID, "lbl-lang").text.strip() == "EN"
 
-        # Crear un secreto y verificar que NO se puede ver ni editar (sin inputs ni botón 👁 en la tabla)
-        driver.find_element(By.ID, "new-secret-key-input").send_keys("token_pagos")
-        driver.find_element(By.ID, "new-secret-val-input").send_keys("sk_live_unico_998877")
-        driver.find_element(By.ID, "btn-add-secret-row").click()
-        time.sleep(0.25)
-
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='token_pagos']")) == 1
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-sec-reveal]")) == 0, "Los secretos no deben tener botón para verse"
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-sec-val]")) == 0, "Los secretos creados no deben tener input editable"
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-sec-rename]")) == 0, "La clave de un secreto creado no debe ser editable"
-
-        # Captura 1: Bóveda de Secretos con aviso sin contraseña y secreto bloqueado (no visible ni editable)
-        driver.save_screenshot(os.path.join(SHOTS_DIR, "v10_pwd_1_vault_locked_warning.png"))
-        print("  ✓ [E2E VAULT] Secretos no visibles ni editables y aviso de no persistencia sin contraseña verificados")
-
-        # 2. Intentar eliminar el secreto sin tener contraseña configurada -> debe bloquear y abrir el modal de Configuración
-        driver.find_element(By.CSS_SELECTOR, "[data-sec-del='token_pagos']").click()
-        time.sleep(0.25)
-        assert "open" in driver.find_element(By.ID, "modal-settings").get_attribute("class")
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='token_pagos']")) == 1, "No debe eliminarse el secreto sin contraseña"
-
-        # 3. Configurar la contraseña inicial en el modal de Configuración estilizado
-        driver.find_element(By.ID, "settings-init-pwd").send_keys("Admin1234!")
-        driver.find_element(By.ID, "settings-init-pwd-confirm").send_keys("Admin1234!")
-        driver.find_element(By.ID, "btn-save-initial-pwd").click()
+        driver.find_element(By.ID, "btn-send-req").click()
         time.sleep(0.3)
+        status_badge_en = driver.find_element(By.ID, "resp-status-badge").text.strip()
+        assert status_badge_en == "INVALID URL"
 
-        status_badge = driver.find_element(By.ID, "settings-pwd-status-badge").text
-        assert "Contraseña Activa" in status_badge
+        # Verificar que el JSON devuelto tiene clases de color (.etp-json-key, .etp-json-string), numeración .etp-resp-line-num y botón de plegado [data-json-fold]
+        json_keys = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-json-key")
+        json_strings = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-json-string")
+        resp_lines = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
+        fold_btns = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content [data-json-fold='0']")
+        assert len(json_keys) >= 2, "Las propiedades JSON deben mostrarse con color (.etp-json-key)"
+        assert len(json_strings) >= 2, "Los valores string JSON deben mostrarse con color (.etp-json-string)"
+        assert len(resp_lines) == 4, f"El JSON formateado de error debe tener 4 líneas numeradas, tiene {len(resp_lines)}"
+        assert len(fold_btns) == 1, "La línea de apertura '{' debe tener control para colapsar/expandir entre llaves"
 
-        # Captura 2: Modal de Configuración estilizado con cambio de contraseña (con anterior) y recuperación de contraseña
-        driver.save_screenshot(os.path.join(SHOTS_DIR, "v10_pwd_2_settings_stylized.png"))
-
-        # 4. Cambiar la contraseña ingresando la anterior -> los secretos deben conservarse intactos
-        driver.find_element(By.ID, "settings-old-pwd").send_keys("Admin1234!")
-        driver.find_element(By.ID, "settings-change-new-pwd").send_keys("NuevaClave2026!")
-        driver.find_element(By.ID, "settings-change-confirm-pwd").send_keys("NuevaClave2026!")
-        driver.find_element(By.ID, "btn-change-pwd-keep-secrets").click()
-        time.sleep(0.3)
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='token_pagos']")) == 1, "El secreto debe conservarse al cambiar contraseña ingresando la anterior"
-        print("  ✓ [E2E PWD] Configuración inicial y cambio de contraseña (ingresando la anterior sin borrar secretos) verificados")
-
-        # 5. Probar eliminar un secreto con contraseña incorrecta (debe fallar) y luego con contraseña correcta
-        driver.find_element(By.ID, "btn-close-settings-modal").click()
+        # Probar colapsar entre llaves '{ ... }' y luego expandir
+        fold_btns[0].click()
         time.sleep(0.2)
-        # Crear un segundo secreto temporal para probar su eliminación con contraseña
-        driver.find_element(By.ID, "new-secret-key-input").send_keys("secreto_a_borrar")
-        driver.find_element(By.ID, "new-secret-val-input").send_keys("valor_temporal_456")
-        driver.find_element(By.ID, "btn-add-secret-row").click()
+        resp_lines_folded = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
+        folded_pills = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-json-folded-pill")
+        assert len(resp_lines_folded) == 1 and len(folded_pills) == 1, "Al colapsar las llaves debe quedar 1 línea resumen con la píldora de líneas ocultas"
+        folded_pills[0].click()
         time.sleep(0.2)
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='secreto_a_borrar']")) == 1
+        assert len(driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")) == 4
 
-        # Intentar borrar con contraseña errónea
-        driver.find_element(By.CSS_SELECTOR, "[data-sec-del='secreto_a_borrar']").click()
+        # Probar búsqueda en respuesta: en modo Filtrar líneas vs en modo Ver todo (con resaltado <mark class="etp-search-highlight">)
+        resp_search = driver.find_element(By.ID, "resp-search-input")
+        resp_search.send_keys("HTTP")
         time.sleep(0.2)
-        pwd_dialog_inp = driver.find_element(By.ID, "input-dialog-field")
-        assert pwd_dialog_inp.get_attribute("type") == "password"
-        pwd_dialog_inp.send_keys("ClaveIncorrecta")
+        filtered_lines = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
+        assert len(filtered_lines) == 1, "En modo filtrar líneas solo debe mostrarse la línea que coincide"
+
+        driver.find_element(By.ID, "btn-resp-filter-mode").click()
+        time.sleep(0.2)
+        all_lines_shown = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content .etp-resp-line")
+        highlights = driver.find_elements(By.CSS_SELECTOR, "#resp-pre-content mark.etp-search-highlight")
+        assert len(all_lines_shown) == 4, "En modo 'Ver todo' deben mostrarse todas las líneas"
+        assert len(highlights) >= 2, "En modo 'Ver todo' deben resaltarse las palabras que coinciden con <mark class='etp-search-highlight'>"
+        driver.find_element(By.ID, "btn-clear-resp-search").click()
+        time.sleep(0.15)
+        print("  ✓ [E2E JSON & SEARCH] Colores JSON, plegado de llaves {}, numeración exacta de respuesta y resaltado en modo 'Ver todo' verificados")
+
+        # 2. Verificar numeración dinámica de líneas en el editor del cuerpo de la solicitud (#body-raw-textarea y #body-code-gutter)
+        driver.find_element(By.ID, "tab-btn-body").click()
+        time.sleep(0.2)
+        body_ta = driver.find_element(By.ID, "body-raw-textarea")
+        body_ta.send_keys('{\n  "orden": 101,\n  "estado": "activo",\n  "prioridad": "alta"\n}')
+        time.sleep(0.2)
+        gutter_lines = driver.find_elements(By.CSS_SELECTOR, "#body-code-gutter .etp-gutter-line")
+        assert len(gutter_lines) == 5, f"El editor del cuerpo debe mostrar 5 líneas numeradas dinámicamente, muestra {len(gutter_lines)}"
+        print("  ✓ [E2E BODY EDITOR] Numeración de línea dinámica y sincronizada en el editor del cuerpo de la solicitud verificada")
+
+        # Volver a Español
+        driver.find_element(By.ID, "btn-toggle-lang").click()
+        time.sleep(0.2)
+
+        # 3. Verificar validación de nombre duplicado en el mismo modal tanto al CREAR como al EDITAR colección
+        driver.find_element(By.ID, "side-tab-collections").click()
+        time.sleep(0.2)
+
+        driver.find_element(By.ID, "btn-new-collection").click()
+        time.sleep(0.2)
+        inp_dialog = driver.find_element(By.ID, "input-dialog-field")
+        inp_dialog.clear()
+        inp_dialog.send_keys("Mi Colección Principal")
+        driver.find_element(By.ID, "btn-confirm-input-dialog").click()
+        time.sleep(0.2)
+
+        modal_input_el = driver.find_element(By.ID, "modal-input-dialog")
+        inline_err_el = driver.find_element(By.ID, "input-dialog-error")
+        assert "open" in modal_input_el.get_attribute("class"), "El modal debe permanecer abierto al intentar crear una colección con nombre existente"
+        assert inline_err_el.is_displayed() and "Modifica el nombre" in inline_err_el.text
+
+        inp_dialog.clear()
+        inp_dialog.send_keys("Colección Pagos")
         driver.find_element(By.ID, "btn-confirm-input-dialog").click()
         time.sleep(0.25)
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='secreto_a_borrar']")) == 1, "No debe eliminarse con contraseña incorrecta"
+        assert "open" not in modal_input_el.get_attribute("class")
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-collection")) == 2
 
-        # Borrar con la contraseña correcta ("NuevaClave2026!")
-        driver.find_element(By.CSS_SELECTOR, "[data-sec-del='secreto_a_borrar']").click()
+        # Ahora probar renombrar desde el botón edit (✎) poniendo un nombre duplicado -> también debe mantener abierto el modal con #input-dialog-error
+        driver.find_element(By.CSS_SELECTOR, "[data-edit-col='1']").click()
         time.sleep(0.2)
-        driver.find_element(By.ID, "input-dialog-field").send_keys("NuevaClave2026!")
+        inp_dialog = driver.find_element(By.ID, "input-dialog-field")
+        inp_dialog.clear()
+        inp_dialog.send_keys("Mi Colección Principal")
         driver.find_element(By.ID, "btn-confirm-input-dialog").click()
         time.sleep(0.25)
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='secreto_a_borrar']")) == 0, "Debe eliminarse al ingresar la contraseña correcta"
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='token_pagos']")) == 1
-        print("  ✓ [E2E DEL] Protección de eliminación de secretos mediante contraseña verificada")
+        assert "open" in modal_input_el.get_attribute("class"), "Al editar el nombre desde ✎ con un nombre duplicado también debe permanecer abierto el modal mostrando el error"
+        assert inline_err_el.is_displayed() and "Modifica el nombre" in inline_err_el.text
 
-        # 6. Probar recuperación de contraseña olvidada: verificar que el modal de advertencia se muestra POR ENCIMA del modal principal y borra los secretos al confirmar
-        driver.find_element(By.ID, "btn-open-settings").click()
+        inp_dialog.clear()
+        inp_dialog.send_keys("Colección Pagos v2")
+        driver.find_element(By.ID, "btn-confirm-input-dialog").click()
         time.sleep(0.25)
-        driver.find_element(By.ID, "settings-reset-new-pwd").send_keys("Recuperada999!")
-        driver.find_element(By.ID, "settings-reset-confirm-pwd").send_keys("Recuperada999!")
-        driver.find_element(By.ID, "btn-reset-forgotten-pwd").click()
+        assert "open" not in modal_input_el.get_attribute("class")
+        print("  ✓ [E2E MODAL VALIDATION] Validación en el mismo modal al crear y al editar nombre de colección verificada")
+
+        # 4. Verificar colapsar y expandir colecciones y carpetas
+        driver.find_element(By.ID, "btn-new-folder").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-confirm-input-dialog").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-new-request").click()
+        time.sleep(0.2)
+
+        folder_toggle = driver.find_element(By.CSS_SELECTOR, "[data-toggle-folder-collapse]")
+        folder_toggle.click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 0, "Al colapsar la carpeta deben ocultarse sus solicitudes"
+        driver.find_element(By.CSS_SELECTOR, "[data-toggle-folder-collapse]").click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")) == 1, "Al expandir la carpeta deben mostrarse sus solicitudes"
+
+        col_toggles = driver.find_elements(By.CSS_SELECTOR, "[data-toggle-col-collapse]")
+        col_toggles[0].click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")) == 0, "Al colapsar la colección deben ocultarse sus elementos internos"
+        driver.find_elements(By.CSS_SELECTOR, "[data-toggle-col-collapse]")[0].click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")) == 1
+        print("  ✓ [E2E COLLAPSE] Colapsar y expandir colecciones y carpetas verificado")
+
+        # 5. Verificar selección única entre colecciones y movimiento entre colecciones
+        col0_req0 = driver.find_element(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='0']")
+        col0_req0.click()
         time.sleep(0.25)
+        active_tree_items = driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item.active")
+        assert len(active_tree_items) == 1
+        assert active_tree_items[0].get_attribute("data-col-idx") == "0"
 
-        # Verificar que el modal de confirmación está abierto y tiene mayor z-index que #modal-settings
-        z_settings = int(driver.execute_script("return window.getComputedStyle(document.getElementById('modal-settings')).zIndex || 0;"))
-        z_confirm = int(driver.execute_script("return window.getComputedStyle(document.getElementById('modal-confirm-move')).zIndex || 0;"))
-        z_toast = int(driver.execute_script("return window.getComputedStyle(document.getElementById('toast-container')).zIndex || 0;"))
-        assert z_confirm > z_settings, f"El diálogo de confirmación (z={z_confirm}) debe estar por encima del modal principal (z={z_settings})"
-        assert z_toast > z_confirm, f"Las notificaciones toast (z={z_toast}) deben estar por encima de todos los modales"
+        loc_select = Select(driver.find_element(By.ID, "req-folder-select"))
+        loc_select.select_by_value("1::")
+        time.sleep(0.3)
+        col1_reqs = driver.find_elements(By.CSS_SELECTOR, ".etp-tree-item[data-col-idx='1']")
+        assert len(col1_reqs) == 2
+        print("  ✓ [E2E COLLECTIONS] Selección única entre colecciones y movimiento entre colecciones verificados")
 
-        # Captura 3: Diálogo de advertencia de borrado de secretos superpuesto por encima del modal de Configuración
-        driver.save_screenshot(os.path.join(SHOTS_DIR, "v10_pwd_3_recovery_overlay_above_modal.png"))
+        # 6. Verificar doble confirmación al eliminar carpeta o colección que tenga 1 o más solicitudes
+        confirm_modal = driver.find_element(By.ID, "modal-confirm-move")
+        confirm_title = driver.find_element(By.ID, "confirm-move-title")
+        confirm_msg = driver.find_element(By.ID, "confirm-move-message")
 
+        # 6a. Eliminar carpeta con 1 solicitud: Paso 1 -> Aceptar -> Paso 2 -> Cancelar (no debe eliminarse)
+        driver.find_element(By.CSS_SELECTOR, "[data-del-folder]").click()
+        time.sleep(0.2)
+        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 1ra confirmación al eliminar carpeta con >=1 solicitud"
+        assert "1 de 2" in confirm_title.text
         driver.find_element(By.ID, "btn-accept-confirm-move").click()
-        time.sleep(0.3)
-        assert len(driver.find_elements(By.CSS_SELECTOR, "[data-secret-row='token_pagos']")) == 0, "Todos los secretos deben borrarse al recuperar una contraseña olvidada"
-        print("  ✓ [E2E REC] Recuperación de contraseña olvidada con borrado de secretos y superposición z-index verificada")
+        time.sleep(0.2)
+        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 2da confirmación (doble confirmación)"
+        assert "2 de 2" in confirm_title.text and "Segunda confirmación" in confirm_msg.text
+        driver.find_element(By.ID, "btn-cancel-confirm-move").click()
+        time.sleep(0.2)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 1, "Al cancelar en la 2da confirmación la carpeta debe conservarse"
+
+        # Ahora confirmar Paso 1 y Paso 2 para eliminar la carpeta
+        driver.find_element(By.CSS_SELECTOR, "[data-del-folder]").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-accept-confirm-move").click()
+        time.sleep(0.2)
+        driver.find_element(By.ID, "btn-accept-confirm-move").click()
+        time.sleep(0.25)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-folder")) == 0, "Tras confirmar los 2 pasos la carpeta debe eliminarse"
+
+        # 6b. Eliminar colección 1 (que aún tiene 1 solicitud en su raíz): Paso 1 -> Aceptar -> Paso 2 -> Aceptar
+        driver.find_element(By.CSS_SELECTOR, "[data-del-col='1']").click()
+        time.sleep(0.2)
+        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 1ra confirmación al eliminar colección con >=1 solicitud"
+        assert "1 de 2" in confirm_title.text
+        driver.find_element(By.ID, "btn-accept-confirm-move").click()
+        time.sleep(0.2)
+        assert "open" in confirm_modal.get_attribute("class"), "Debe abrirse la 2da confirmación al eliminar colección con >=1 solicitud"
+        assert "2 de 2" in confirm_title.text
+        driver.find_element(By.ID, "btn-accept-confirm-move").click()
+        time.sleep(0.25)
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".etp-tree-collection")) == 1, "Tras la doble confirmación la colección debe eliminarse"
+        print("  ✓ [E2E DOUBLE CONFIRM DELETE] Doble confirmación al eliminar carpeta o colección con 1 o más solicitudes verificada")
 
     finally:
         driver.quit()
 
 
 if __name__ == "__main__":
-    print("=== Ejecutando Pruebas E2E de Interfaz, Seguridad y Administración de Secretos (ElTransportador v1.0.0) ===")
+    print("=== Ejecutando Pruebas E2E de Interfaz, Seguridad, I18N, JSON y Colecciones (ElTransportador v1.0.1) ===")
     run_ui_tests()

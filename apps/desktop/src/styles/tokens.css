@@ -33,6 +33,14 @@
   --method-delete: #dc2626;
   --method-head: #475569;
   --method-options: #be185d;
+  --json-key: #0369a1;
+  --json-string: #047857;
+  --json-number: #b45309;
+  --json-boolean: #6d28d9;
+  --json-null: #be123c;
+  --json-brace: #334155;
+  --search-mark-bg: rgba(250, 204, 21, 0.48);
+  --search-mark-border: #ca8a04;
   --font-sans: 'Plus Jakarta Sans', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
 }
@@ -64,6 +72,14 @@
   --method-delete: #d47373;
   --method-head: #949da8;
   --method-options: #c980a8;
+  --json-key: #7dd3fc;
+  --json-string: #6ee7b7;
+  --json-number: #fcd34d;
+  --json-boolean: #c4b5fd;
+  --json-null: #fda4af;
+  --json-brace: #cbd5e1;
+  --search-mark-bg: rgba(234, 179, 8, 0.36);
+  --search-mark-border: #eab308;
 }
 
 * {
